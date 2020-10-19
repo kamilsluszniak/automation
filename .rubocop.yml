@@ -1,6 +1,9 @@
 require: rubocop-rails
 Metrics/BlockLength:
   ExcludedMethods: ['describe', 'context', 'define']
+  Exclude:
+    - 'config/environments/*.rb'
+
 Metrics/MethodLength:
   Max: 20
   ExcludedMethods: ['change']
