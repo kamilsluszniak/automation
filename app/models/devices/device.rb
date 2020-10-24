@@ -3,10 +3,6 @@
 class Device < ApplicationRecord
   extend FriendlyId
   friendly_id :name, use: %i[slugged finders]
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :token_authenticatable
 
   validates :type, inclusion: { in: %w[AquariumController Light ValveController] }
 

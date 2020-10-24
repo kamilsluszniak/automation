@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ChartsController < Api::BaseController
-  skip_before_action :authenticate_user_from_token!
+
   def show
     a = AquariumController.last
     @data = a.get_metrics('distance', 2, 'h')

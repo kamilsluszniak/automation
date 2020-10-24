@@ -18,8 +18,8 @@
 require_relative 'support/controller_helpers'
 require_relative 'support/database_cleaner'
 require 'devise'
-require 'capybara/rspec'
 require 'wisper/rspec/matchers'
+require 'devise/jwt/test_helpers'
 
 RSpec.configure do |config|
   config.include ControllerHelpers, type: :controller

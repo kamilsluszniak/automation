@@ -6,11 +6,7 @@ describe CreateUser do
   context 'with create_user_params valid' do
     it 'broadcascts create_user_success with user as param' do
       publisher = CreateUser.new
-      expect(publisher).to receive(:broadcast).with(:create_user_success, an_instance_of(User)) do |_s, u|
-        expect(u.authentication_token).to be_a(String)
-        expect(u.authentication_token.length).to be(152)
-        expect(u.authentication_token_created_at).to be_kind_of(Time)
-      end
+      expect(publisher).to receive(:broadcast).with(:create_user_success, an_instance_of(User))
       publisher.call(valid_user_params)
     end
   end

@@ -1,14 +1,7 @@
 # frozen_string_literal: true
 
 class ReportsController < Api::BaseController
-  require 'uri'
-  include BCrypt
-  skip_before_action :authenticate_user_from_token!
-  before_action :ensure_device, only: %i[create show]
-  before_action :authenticate_device, only: [:create]
-  before_action :authenticate_user, only: [:show]
-
-  def new; end
+  before_action :authenticate_user!
 
   def create
     filtered_reports = device_reports.except('checkin')
@@ -19,14 +12,6 @@ class ReportsController < Api::BaseController
     render json: { settings: device.permitted_settings.compact }, status: :ok
   end
 
-  def update; end
-
-  def edit; end
-
-  def destroy; end
-
-  def index; end
-
   def show
     data = device.get_metrics(params_report_name)
     render json: data, status: :ok
@@ -34,18 +19,8 @@ class ReportsController < Api::BaseController
 
   private
 
-  def authenticate_device
-    access_token = request.env['HTTP_AUTHORIZATION']
-    authorized = access_token && (access_token == device.authentication_token)
-    return render json: 'Unauthorized', status: :unauthorized unless authorized
-  end
-
   def params_report_name
     params.dig(:device, :reports, :name)
-  end
-
-  def authenticate_user
-    redirect_to new_user_session_url unless user_signed_in?
   end
 
   def device_params
@@ -61,7 +36,7 @@ class ReportsController < Api::BaseController
   end
 
   def device
-    @device ||= Device.friendly.find(params.dig(:device, :name))
+    @device ||= current_user.devices.friendly.find(params.dig(:device, :name))
   end
 
   def ensure_device

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class DevicesController < Api::BaseController
-  skip_before_action :authenticate_user_from_token!
   before_action :ensure_device, only: %i[show edit update destroy]
 
   def show; end
