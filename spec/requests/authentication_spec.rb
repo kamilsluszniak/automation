@@ -17,12 +17,12 @@ RSpec.describe 'POST /users/sign_in', type: :request do
     let(:headers) { { 'Accept' => 'application/json' } }
 
     it 'returns 200' do
-      post user_session_path, params: params, :headers => headers
+      post user_session_path, params: params, headers: headers
       expect(response).to have_http_status(200)
     end
 
     it 'returns JWT in authorization header' do
-      post user_session_path, params: params, :headers => headers
+      post user_session_path, params: params, headers: headers
       expect(response.headers['Authorization']).to be_present
     end
   end

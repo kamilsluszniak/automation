@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class ChartsController < Api::BaseController
-
   def show
     a = AquariumController.last
     @data = a.get_metrics('distance', 2, 'h')

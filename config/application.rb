@@ -25,10 +25,10 @@ module Automation
       allow do
         origins 'http://your.frontend.domain.com'
         resource '/api/*',
-          headers: %w(Authorization),
-          methods: :any,
-          expose: %w(Authorization),
-          max_age: 600
+                 headers: %w[Authorization],
+                 methods: :any,
+                 expose: %w[Authorization],
+                 max_age: 600
       end
     end
   end
