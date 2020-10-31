@@ -3,10 +3,15 @@
 Rails.application.routes.draw do
   mount GraphiQL::Rails::Engine, at: '/graphiql', graphql_path: '/graphql' if Rails.env.development?
   post '/graphql', to: 'graphql#execute'
-  devise_for :devices
-  devise_for :users,
-             controllers: { sessions: 'api/sessions', registrations: 'api/registrations' }
-  get :new_session, to: 'device_sessions#new_session'
+  devise_for  :users,
+              path: '',
+              path_names: {
+                sign_in: 'login',
+                sign_out: 'logout'
+              },
+              controllers: {
+                sessions: 'sessions'
+              }
   resources :devices
 
   get :device_settings, to: 'devices#device_settings'

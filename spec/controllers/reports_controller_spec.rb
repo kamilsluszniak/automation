@@ -8,6 +8,8 @@ RSpec.describe ReportsController, type: :controller do
     let(:user) { create(:user) }
     let(:device) { create(:device, user: user) }
     let(:aquarium_controller) { create(:aquarium_controller, user: user) }
+    let(:headers) { { 'Accept' => 'application/json', 'Content-Type' => 'application/json' } }
+    let(:auth_headers) { Devise::JWT::TestHelpers.auth_headers(headers, user) }
 
     it 'not update Device measurements on CRREATE without an access token' do
       post :create, params: { device: { name: device.name, authentication_token: nil } }
@@ -15,8 +17,7 @@ RSpec.describe ReportsController, type: :controller do
     end
 
     it 'updates Device measurements on CREATE with an access token' do
-      headers = { 'HTTP_AUTHORIZATION' => device.authentication_token }
-      request.headers.merge! headers
+      request.headers.merge! auth_headers
       post :create, params: {
         device: {
           name: device.name, reports: {
@@ -30,17 +31,16 @@ RSpec.describe ReportsController, type: :controller do
       expect(resp).to have_key('settings')
     end
 
-    it 'redirects SHOW when user not signed in' do
+    it 'returns 401 on SHOW when user not signed in' do
       get :show, params: { device: { name: device.name } }
-      expect(response).to redirect_to(new_user_session_path)
+      expect(response.status).to eq(401)
     end
 
     it 'gets Device measurements on SHOW when user signed in' do
-      login_with user
+      request.headers.merge! auth_headers
       get :show, params: {
         device: {
           name: device.name,
-          authentication_token: device.authentication_token,
           reports: {
             name: 'test'
           }
@@ -52,8 +52,7 @@ RSpec.describe ReportsController, type: :controller do
     end
 
     it 'returns connected device with settings after report' do
-      headers = { 'HTTP_AUTHORIZATION' => aquarium_controller.authentication_token }
-      request.headers.merge! headers
+      request.headers.merge! auth_headers
 
       post :create, params: {
         device: {
