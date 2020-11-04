@@ -1,0 +1,42 @@
+{
+  "family": "automation-service",
+  "containerDefinitions": [
+    {
+      "name": "automation",
+      "image": "252636471646.dkr.ecr.us-east-2.amazonaws.com/automation:latest",
+      "essential": false,
+      "memoryReservation": 500,
+      "cpu": 500,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "links": [
+        "automation-influx"
+      ],
+      "command": [
+        "bundle exec rails s"
+      ]
+    },
+    {
+      "name": "automation-influx",
+      "image": "252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-influx:latest",
+      "essential": false,
+      "memoryReservation": 300,
+      "cpu": 300,
+      "portMappings": [
+        {
+          "containerPort": 8086,
+          "hostPort": 8086,
+          "protocol": "tcp"
+        }
+      ],
+      "command": [
+        "influxd"
+      ]
+    }
+  ]
+}
