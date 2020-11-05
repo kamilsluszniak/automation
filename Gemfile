@@ -21,7 +21,6 @@ gem 'uglifier', '>= 1.3.0'
 # gem 'therubyracer', platforms: :ruby
 gem 'activemodel-serializers-xml'
 gem 'bcrypt'
-gem 'chartkick'
 gem 'devise'
 gem 'devise-jwt', '~> 0.8.0'
 gem 'fast_jsonapi'
@@ -29,8 +28,6 @@ gem 'friendly_id', '~> 5.1.0'
 gem 'graphql'
 gem 'influxdb-rails'
 gem 'mailgun-rails'
-gem 'pry'
-gem 'pry-nav'
 gem 'pry-stack_explorer'
 gem 'rack-cors'
 gem 'rubocop-rails', require: false
@@ -55,6 +52,8 @@ gem 'therubyracer'
 # gem 'capistrano-rails', group: :development
 
 group :development, :test do
+  gem 'pry'
+  gem 'pry-nav'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   # Adds support for Capybara system testing and selenium driver
