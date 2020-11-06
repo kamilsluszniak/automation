@@ -17,5 +17,6 @@ Rails.application.routes.draw do
   resources :reports, only: :create
   match 'reports/show' => 'reports#show', :via => :get
   resources :charts, only: :show
+  get :ping, to: 'healthchecks#ping'
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end
