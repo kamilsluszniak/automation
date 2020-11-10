@@ -1,0 +1,35 @@
+version: '3'
+services:
+  api:
+    image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation:latest
+    networks:
+      net1:
+        aliases:
+          - api
+    depends_on:
+      - influx
+    links:
+      - influx:influx
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_PASSWORD=dupacycki1
+      - POSTGRES_USER=automation
+      - POSTGRES_DB=automation_production
+      - INFLUX_HOST=influx
+      - POSTGRES_HOST=automation-postgres.cqjw7kovlc3w.us-east-2.rds.amazonaws.com
+      - POSTGRES_PORT=5432
+      - RAILS_ENV=production
+    ports:
+      - "3000:3000"
+    command: bundle exec rails s
+
+  influx:
+    image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-influx:latest
+    networks:
+      net1:
+        aliases:
+          - influx
+
+networks:
+  net1:
+    

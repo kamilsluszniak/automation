@@ -17,8 +17,8 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  host: <%= ENV['AUTOMATION_DATABASE_HOST'] || 'localhost' %>
-  port: <%= ENV['AUTOMATION_DATABASE_PORT'] || 5432 %>
+  host: localhost
+  port: 5432
   # For details on connection pooling, see Rails configuration guide
   # http://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
@@ -31,10 +31,10 @@ development:
   # To create additional roles in postgres see `$ createuser --help`.
   # When left blank, postgres will use the default role. This is
   # the same name as the operating system user that initialized the database.
-  username: <%= ENV['AUTOMATION_DATABASE_USER'] %>
+  username: <%= ENV['POSTGRES_USER'] %>
 
   # The password associated with the postgres role (username).
-  password: <%= ENV['PG_PASSWORD'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
 
   # Connect on a TCP socket. Omitted by default since the client uses a
   # domain socket that doesn't need configuration. Windows does not have
@@ -84,6 +84,8 @@ test:
 #
 production:
   <<: *default
+  host: <%= ENV['POSTGRES_HOST'] %>
+  port: <%= ENV['POSTGRES_PORT'] %>
   database: automation_production
   username: pi
-  password: <%= ENV['PG_PASSWORD'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>

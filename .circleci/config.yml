@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   aws-ecr: circleci/aws-ecr@6.14.0
-  aws-ecs: circleci/aws-ecs@1.4.0
 
 executors:
   default:
@@ -78,23 +77,38 @@ jobs:
       - run:
           name: Rubocop
           command: bundle exec rubocop
+  deploy:
+    executor: default
+    steps:
+      - run:
+          name: Install Docker Compose
+          command: |
+            curl -L https://github.com/docker/compose/releases/download/1.27.4/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+      - run:
+          name: AWS CLI login
+          command: |
+            aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 252636471646.dkr.ecr.us-east-2.amazonaws.com
+      - run:
+          name: Run Docker Compose
+          command: |
+            DOCKER_HOST=“ssh://ubuntu@ip-172-31-34-110” docker-compose restart
+
 
 workflows:
   version: 2
   integration:
     jobs:
-      - build
-      - rubocop:
-          requires:
-            - build
-  build-and-deploy:
+        - build
+        - rubocop:
+            requires:
+              - build
+  build-image:
     jobs:
         - aws-ecr/build-and-push-image:
             repo: "${AWS_RESOURCE_NAME_PREFIX}"
             tag: "latest"
-        - aws-ecs/deploy-service-update:
-            requires:
-              - aws-ecr/build-and-push-image # only run this job once aws-ecr/build-and-push-image has completed
-            family: "${AWS_RESOURCE_NAME_PREFIX}-service"
-            cluster-name: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
-            container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX},tag=latest"
+  deploy-containers:
+    jobs:
+        - deploy
