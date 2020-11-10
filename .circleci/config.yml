@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   aws-ecr: circleci/aws-ecr@6.14.0
+  aws-cli: circleci/aws-cli@1.3.0
 
 executors:
   default:
@@ -80,6 +81,9 @@ jobs:
   deploy:
     executor: default
     steps:
+      - checkout
+      - aws-cli/setup:
+          profile-name: example
       - run:
           name: Install Docker Compose
           command: |
