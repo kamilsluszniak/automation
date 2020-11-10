@@ -97,7 +97,7 @@ jobs:
       - run:
           name: Run Docker Compose
           command: |
-            DOCKER_HOST=“ssh://ubuntu@172.31.34.110” docker-compose restart
+            DOCKER_HOST="ssh://ubuntu@172.31.34.110" docker-compose restart
 
 
 workflows:
