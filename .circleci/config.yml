@@ -82,6 +82,9 @@ jobs:
     executor: default
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints:
+              - 06:a5:ee:50:3d:f7:12:df:3a:a8:f7:b3:38:d1:67:bd
       - aws-cli/setup:
           profile-name: example
       - run:
