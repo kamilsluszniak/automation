@@ -78,30 +78,6 @@ jobs:
       - run:
           name: Rubocop
           command: bundle exec rubocop
-  deploy:
-    executor: default
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints:
-              - 06:a5:ee:50:3d:f7:12:df:3a:a8:f7:b3:38:d1:67:bd
-      - aws-cli/setup:
-          profile-name: example
-      - run:
-          name: Install Docker Compose
-          command: |
-            curl -L https://github.com/docker/compose/releases/download/1.27.4/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-            chmod +x ~/docker-compose
-            sudo mv ~/docker-compose /usr/local/bin/docker-compose
-      - run:
-          name: AWS CLI login
-          command: |
-            aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 252636471646.dkr.ecr.us-east-2.amazonaws.com
-      - run:
-          name: Run Docker Compose
-          command: |
-            DOCKER_HOST="ssh://ubuntu@172.31.34.110" docker-compose restart
-
 
 workflows:
   version: 2
@@ -116,6 +92,3 @@ workflows:
         - aws-ecr/build-and-push-image:
             repo: "${AWS_RESOURCE_NAME_PREFIX}"
             tag: "latest"
-  deploy-containers:
-    jobs:
-        - deploy
