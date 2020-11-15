@@ -33,6 +33,8 @@ services:
 
   influx:
     image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-influx:latest
+    volumes:
+      - ./influx-data:/var/lib/influxdb
     networks:
       net1:
         aliases:
