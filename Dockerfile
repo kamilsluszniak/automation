@@ -13,6 +13,10 @@ ENV RAILS_ENV production
 ENV RAILS_LOG_TO_STDOUT true
 ENV RAILS_MASTER_KEY c5117e483827518b4e229b4990efd79a
 
+ENV POSTGRES_HOST automation-postgres.cqjw7kovlc3w.us-east-2.rds.amazonaws.com
+ENV POSTGRES_USER automation
+ENV POSTGRES_PASSWORD cycki
+
 WORKDIR /app
 COPY Gemfile /app/Gemfile
 COPY Gemfile.lock /app/Gemfile.lock
