@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 services:
   web:
     image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-web:latest
@@ -8,8 +8,10 @@ services:
           - api
     ports:
       - 3001:3001
+    mem_limit: 512m
   api:
     image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation:latest
+    mem_limit: 512m
     networks:
       net1:
         aliases:
@@ -33,14 +35,16 @@ services:
 
   influx:
     image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-influx:latest
+    mem_limit: 192m
     volumes:
-      - ./influx-data:/var/lib/influxdb
+      - /home/ec2-user/influx:/var/lib/influxdb
     networks:
       net1:
         aliases:
           - influx
   nginx:
     image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-proxy:latest
+    mem_limit: 64m
     networks:
       net1:
         aliases:

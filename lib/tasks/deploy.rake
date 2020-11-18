@@ -6,8 +6,20 @@ namespace :deploy do
     exec 'scp ./docker-compose.yml ubuntu@3.139.171.17:/home/deploy'
   end
 
+  desc 'login to aws ecr'
+  task ecr_login: :environment do
+    cmd = 'aws ecr get-login-password --region us-east-2 | docker login '\
+    '--username AWS --password-stdin 252636471646.dkr.ecr.us-east-2.amazonaws.com'
+    exec cmd
+  end
+
   desc 'runs compose'
   task run_compose: :environment do
     exec 'DOCKER_HOST="ssh://ubuntu@3.139.171.17" docker-compose restart'
+  end
+
+  desc 'generate task definition'
+  task definition_gen: :environment do
+    exec 'docker run --rm -v $(pwd):/data/ micahhausler/container-transform  docker-compose.yml'
   end
 end
