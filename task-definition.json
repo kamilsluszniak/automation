@@ -58,7 +58,7 @@
         {
             "essential": true,
             "image": "252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-influx:latest",
-            "memory": 192,
+            "memory": 512,
             "mountPoints": [
                 {
                     "containerPath": "/var/lib/influxdb",

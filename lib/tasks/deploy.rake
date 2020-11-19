@@ -22,4 +22,9 @@ namespace :deploy do
   task definition_gen: :environment do
     exec 'docker run --rm -v $(pwd):/data/ micahhausler/container-transform  docker-compose.yml'
   end
+
+  desc 'upload ecs task'
+  task definition_upload: :environment do
+    exec 'aws ecs register-task-definition --cli-input-json file://task-definition.json'
+  end
 end
