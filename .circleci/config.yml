@@ -78,6 +78,15 @@ jobs:
       - run:
           name: Rubocop
           command: bundle exec rubocop
+  restart_task:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/install
+      - run:
+          name: Restart task
+          command: |
+            TASK_ID=`aws ecs list-tasks --desired-status "RUNNING" --cluster "automation-cluster" | grep arn | sed 's/[ "]//g'`
+            AWS_PAGER="" aws ecs stop-task --cluster "automation-cluster" --task $TASK_ID --reason "Restarting task due to new ECR image deployment"
 
 workflows:
   version: 2
@@ -92,3 +101,4 @@ workflows:
         - aws-ecr/build-and-push-image:
             repo: "${AWS_RESOURCE_NAME_PREFIX}"
             tag: "latest"
+        - restart_task
