@@ -1,0 +1,60 @@
+version: '2'
+services:
+  web:
+    image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-web:latest
+    networks:
+      net1:
+        aliases:
+          - api
+    ports:
+      - 3001:3001
+    mem_limit: 512m
+  api:
+    image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation:latest
+    mem_limit: 512m
+    networks:
+      net1:
+        aliases:
+          - api
+    depends_on:
+      - influx
+    links:
+      - influx:influx
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_PASSWORD=dupacycki1
+      - POSTGRES_USER=automation
+      - POSTGRES_DB=automation_production
+      - INFLUX_HOST=influx
+      - POSTGRES_HOST=automation-postgres.cqjw7kovlc3w.us-east-2.rds.amazonaws.com
+      - POSTGRES_PORT=5432
+      - RAILS_ENV=production
+    ports:
+      - 3000:3000
+    command: bundle exec rails s
+
+  influx:
+    image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-influx:latest
+    mem_limit: 512m
+    volumes:
+      - /home/ec2-user/influx:/var/lib/influxdb
+    networks:
+      net1:
+        aliases:
+          - influx
+  nginx:
+    image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-proxy:latest
+    mem_limit: 64m
+    networks:
+      net1:
+        aliases:
+          - nginx
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - api
+      - web
+
+networks:
+  net1:

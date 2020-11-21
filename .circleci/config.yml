@@ -1,5 +1,9 @@
 version: 2.1
 
+orbs:
+  aws-ecr: circleci/aws-ecr@6.14.0
+  aws-cli: circleci/aws-cli@1.3.0
+
 executors:
   default:
     working_directory: ~/automation
@@ -74,12 +78,37 @@ jobs:
       - run:
           name: Rubocop
           command: bundle exec rubocop
+  restart_task:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/install
+      - run:
+          name: Restart task
+          command: |
+            aws ecs update-service --cluster automation-cluster --service automation-service --force-new-deployment
 
 workflows:
   version: 2
   integration:
     jobs:
-      - build
-      - rubocop:
-          requires:
-            - build
+        - build
+        - rubocop:
+            name: tests
+            requires:
+              - build
+        - aws-ecr/build-and-push-image:
+            repo: "${AWS_RESOURCE_NAME_PREFIX}"
+            tag: "latest"
+            requires:
+              - tests
+            filters:
+              branches:
+                only:
+                  - master
+        - restart_task:
+            requires:
+              - aws-ecr/build-and-push-image
+            filters:
+              branches:
+                only:
+                  - master

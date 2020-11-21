@@ -2,6 +2,7 @@
 
 InfluxDB::Rails.configure do |config|
   config.client.database = 'automation'
+  config.client.hosts = [ENV['INFLUX_HOST']]
 
   # config.retry = false
   # config.async = false
