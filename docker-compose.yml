@@ -58,4 +58,3 @@ services:
 
 networks:
   net1:
-    
