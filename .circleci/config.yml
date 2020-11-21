@@ -85,8 +85,7 @@ jobs:
       - run:
           name: Restart task
           command: |
-            TASK_ID=`aws ecs list-tasks --desired-status "RUNNING" --cluster "automation-cluster" | grep arn | sed 's/[ "]//g'`
-            AWS_PAGER="" aws ecs stop-task --cluster "automation-cluster" --task $TASK_ID --reason "Restarting task due to new ECR image deployment"
+            aws ecs update-service --cluster automation-cluster --service automation-service --force-new-deployment
 
 workflows:
   version: 2
