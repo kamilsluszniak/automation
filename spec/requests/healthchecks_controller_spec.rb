@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe HealthchecksController, type: :controller do
+RSpec.describe HealthchecksController, type: :request do
   context 'with no authentication' do
-    it 'gets light device settings' do
-      get :ping
+    it 'gets ping with status ok' do
+      get '/ping'
       assert_equal response.status, 200
     end
   end
