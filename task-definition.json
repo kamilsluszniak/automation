@@ -43,22 +43,22 @@
             ],
             "essential": true,
             "image": "252636471646.dkr.ecr.us-east-2.amazonaws.com/automation:latest",
+            "memoryReservation": 256,
             "links": [
                 "influx:influx"
             ],
-            "memory": 512,
             "name": "api",
             "portMappings": [
                 {
                     "containerPort": 3000,
-                    "hostPort": 3000
+                    "hostPort": 0
                 }
             ]
         },
         {
             "essential": true,
             "image": "252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-influx:latest",
-            "memory": 512,
+            "memoryReservation": 256,
             "mountPoints": [
                 {
                     "containerPath": "/var/lib/influxdb",
@@ -74,7 +74,7 @@
                 "api",
                 "web"
             ],
-            "memory": 64,
+            "memoryReservation": 16,
             "name": "nginx",
             "portMappings": [
                 {
@@ -90,12 +90,12 @@
         {
             "essential": true,
             "image": "252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-web:latest",
-            "memory": 512,
+            "memoryReservation": 256,
             "name": "web",
             "portMappings": [
                 {
                     "containerPort": 3001,
-                    "hostPort": 3001
+                    "hostPort": 0
                 }
             ]
         }

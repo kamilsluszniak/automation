@@ -19,7 +19,8 @@ RSpec.describe Api::V1::ReportsController, type: :request do
     it 'updates Device measurements on CREATE with an access token' do
       body = {
         device: {
-          name: device.name, reports: {
+          name: device.name,
+          reports: {
             test: 1
           }
         }
@@ -29,23 +30,7 @@ RSpec.describe Api::V1::ReportsController, type: :request do
 
       expect(response).to have_http_status(200)
       resp = JSON.parse(response.body)
-      expect(resp).to have_key('settings')
-    end
-
-    it 'returns connected device with settings after report' do
-      body = {
-        device: {
-          name: aquarium_controller.name,
-          reports: {
-            dummy_report: 666
-          }
-        }
-      }
-
-      post '/api/v1/reports', params: body.to_json, headers: auth_headers
-
-      expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body)['settings']['connected_devices']['water_input_valve']).to eq '192.168.2.108'
+      expect(resp).to have_key('message')
     end
   end
 end

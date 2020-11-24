@@ -6,7 +6,7 @@ module Api
       before_action :ensure_device, only: %i[show edit update destroy]
 
       def show
-        render json: DeviceSerializer.new(device).serializable_hash
+        render json: DeviceSerializer.new(device, params: {current_settings: device_params[:current_settings]}).serializable_hash
       end
 
       def new; end
@@ -25,11 +25,7 @@ module Api
       private
 
       def device_params
-        params.require(:device).permit(
-          :authentication_token, :name, :turn_on_time, :turn_off_time,
-          :intensity, :on_temperature, :off_temperature, :on_volume,
-          :off_volume, :group, :temperature_set, :status, :on
-        )
+        params.permit(:name, :current_settings)
       end
 
       def device

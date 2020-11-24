@@ -9,9 +9,7 @@ module Api
         filtered_reports = device_reports.except('checkin')
         reports_array = filtered_reports.to_h.collect { |k, v| { k => v } }
         device.report_metrics(reports_array) unless reports_array.empty?
-        # my_logger = Logger.new("#{Rails.root}/log/my.log")
-        # my_logger.info("Settings: #{device.permitted_settings.compact.to_s}")
-        render json: { settings: device.permitted_settings.compact }, status: :ok
+        render json: { message: 'success' }, status: :ok
       end
 
       private
@@ -22,9 +20,7 @@ module Api
 
       def device_params
         params.require(:device).permit(
-          :authentication_token, :name, :turn_on_time, :turn_off_time,
-          :intensity, :on_temperature, :off_temperature, :on_volume,
-          :off_volume, :group, :temperature_set, :status, :on
+          :authentication_token, :name, :status, :on
         )
       end
 
