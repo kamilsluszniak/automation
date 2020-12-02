@@ -8,7 +8,6 @@ RSpec.describe Device, type: :model do
       let(:user) { create(:user) }
 
       it { should have_many(:charts) }
-
     end
   end
 end

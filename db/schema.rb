@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_21_144739) do
+ActiveRecord::Schema.define(version: 2020_11_25_161951) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,6 +27,14 @@ ActiveRecord::Schema.define(version: 2020_11_21_144739) do
     t.bigint "trigger_id"
     t.index ["alert_id"], name: "index_alerts_triggers_on_alert_id"
     t.index ["trigger_id"], name: "index_alerts_triggers_on_trigger_id"
+  end
+
+  create_table "api_keys", force: :cascade do |t|
+    t.string "name"
+    t.string "key"
+    t.integer "permission_type"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_api_keys_on_user_id"
   end
 
   create_table "charts", force: :cascade do |t|
@@ -132,6 +140,7 @@ ActiveRecord::Schema.define(version: 2020_11_21_144739) do
   add_foreign_key "alerts", "users"
   add_foreign_key "alerts_triggers", "alerts"
   add_foreign_key "alerts_triggers", "triggers"
+  add_foreign_key "api_keys", "users"
   add_foreign_key "charts", "devices"
   add_foreign_key "charts", "users"
   add_foreign_key "devices", "users"

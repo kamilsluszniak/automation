@@ -32,7 +32,7 @@ RSpec.describe Devices::SettingsInterpreter, type: :model do
 
       context 'when time is less than first element' do
         let(:result) do
-          Timecop.freeze(Time.new(2008, 9, 1, 9, 59, 0, "+00:00")) do
+          Timecop.freeze(Time.new(2008, 9, 1, 9, 59, 0, '+00:00')) do
             subject.call
           end
         end
@@ -52,7 +52,7 @@ RSpec.describe Devices::SettingsInterpreter, type: :model do
 
       context 'when time is bigger than first element' do
         let(:result) do
-          Timecop.freeze(Time.new(2008, 9, 1, 10, 1, 0, "+00:00")) do
+          Timecop.freeze(Time.new(2008, 9, 1, 10, 1, 0, '+00:00')) do
             subject.call
           end
         end
@@ -72,7 +72,7 @@ RSpec.describe Devices::SettingsInterpreter, type: :model do
 
       context 'when time is bigger than second element' do
         let(:result) do
-          Timecop.freeze(Time.new(2008, 9, 1, 11, 50, 0, "+00:00")) do
+          Timecop.freeze(Time.new(2008, 9, 1, 11, 50, 0, '+00:00')) do
             subject.call
           end
         end
@@ -121,7 +121,7 @@ RSpec.describe Devices::SettingsInterpreter, type: :model do
 
       context 'when time is less than first element' do
         let(:result) do
-          Timecop.freeze(Time.new(2008, 9, 1, 9, 59, 0, "+00:00")) do
+          Timecop.freeze(Time.new(2008, 9, 1, 9, 59, 0, '+00:00')) do
             subject.call
           end
         end
@@ -141,7 +141,7 @@ RSpec.describe Devices::SettingsInterpreter, type: :model do
 
       context 'when time is bigger than first element' do
         let(:result) do
-          Timecop.freeze(Time.new(2008, 9, 1, 10, 1, 0, "+00:00")) do
+          Timecop.freeze(Time.new(2008, 9, 1, 10, 1, 0, '+00:00')) do
             subject.call
           end
         end
@@ -161,7 +161,7 @@ RSpec.describe Devices::SettingsInterpreter, type: :model do
 
       context 'when time is bigger than second element' do
         let(:result) do
-          Timecop.freeze(Time.new(2008, 9, 1, 11, 50, 0, "+00:00")) do
+          Timecop.freeze(Time.new(2008, 9, 1, 11, 50, 0, '+00:00')) do
             subject.call
           end
         end

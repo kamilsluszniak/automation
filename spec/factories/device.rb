@@ -2,8 +2,9 @@
 
 FactoryBot.define do
   factory :device do
+    association :user
     name { 'cool_device' }
-    settings {
+    settings do
       {
         light_intensity: {
           time_dependent: true,
@@ -28,6 +29,6 @@ FactoryBot.define do
         },
         water_height: 300
       }
-    }
+    end
   end
 end

@@ -3,7 +3,8 @@
 module Api
   module V1
     class ReportsController < Api::V1::BaseController
-      before_action :authenticate_user!
+      before_action :set_user_by_key
+      before_action :authenticate_user!, unless: -> { @api_key.present? }
 
       def create
         filtered_reports = device_reports.except('checkin')
@@ -25,7 +26,7 @@ module Api
       end
 
       def device_reports
-        params.require(:device).require(:reports).permit(:checkin, :temperature, :volume, :test, :distance)
+        params.require(:device).require(:reports).permit!
       end
 
       def device

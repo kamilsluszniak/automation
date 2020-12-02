@@ -4,9 +4,13 @@ module Api
   module V1
     class DevicesController < Api::V1::BaseController
       before_action :ensure_device, only: %i[show edit update destroy]
+      before_action :set_user_by_key, only: %i[show]
+      before_action :authenticate_user!, unless: -> { @api_key.present? }
 
       def show
-        render json: DeviceSerializer.new(device, params: {current_settings: device_params[:current_settings]}).serializable_hash
+        render json: DeviceSerializer.new(
+          device, params: { current_settings: device_params[:current_settings] }
+        ).serializable_hash
       end
 
       def new; end

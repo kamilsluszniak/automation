@@ -2,11 +2,11 @@
 
 class DeviceSerializer
   include FastJsonapi::ObjectSerializer
-  attribute :settings, if: Proc.new { |record, params|
+  attribute :settings, if: proc { |_record, params|
     params&.dig(:current_settings) != 'true'
   }
 
-  attribute :current_settings, if: Proc.new { |record, params|
+  attribute :current_settings, if: proc { |_record, params|
     params&.dig(:current_settings) == 'true'
   } do |device|
     Devices::SettingsInterpreter.new(device.settings).call
