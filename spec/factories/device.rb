@@ -2,33 +2,33 @@
 
 FactoryBot.define do
   factory :device do
+    association :user
     name { 'cool_device' }
-    turn_on_time { 3.hours.ago.to_i }
-    turn_off_time { 4.hours.from_now.to_i }
-    intensity { { 658 => { red: 10, green: 40, blue: 0, white: 10 } } }
-    on { true }
-    type { 'Light' }
-    light_intensity_lvl { 1 }
-  end
-
-  factory :aquarium_controller do
-    name { 'aquarium_controller' }
-    turn_on_time { 3.hours.ago.to_i }
-    turn_off_time { 4.hours.from_now.to_i }
-    intensity { { 658 => { red: 10, green: 40, blue: 0, white: 10 } } }
-    on { true }
-    distance { 200 }
-    type { 'AquariumController' }
-    light_intensity_lvl { 1 }
-    connected_devices { { 'water_input_valve' => '192.168.2.108' } }
-  end
-
-  factory :valve_controller do
-    name { 'valve_controller' }
-    turn_on_time { 3.hours.ago.to_i }
-    turn_off_time { 4.hours.from_now.to_i }
-    intensity { { 658 => { red: 10, green: 40, blue: 0, white: 10 } } }
-    on { false }
-    type { 'ValveController' }
+    settings do
+      {
+        light_intensity: {
+          time_dependent: true,
+          override: {
+            red: 100,
+            green: 400
+          },
+          values: {
+            600 => {
+              red: 10,
+              green: 40
+            },
+            700 => {
+              red: 20,
+              green: 50
+            },
+            800 => {
+              red: 0,
+              green: 0
+            }
+          }
+        },
+        water_height: 300
+      }
+    end
   end
 end
