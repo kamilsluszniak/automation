@@ -5,6 +5,7 @@ class Trigger < ApplicationRecord
   has_many :alerts_triggers, dependent: :destroy
   has_many :alerts, through: :alerts_triggers
   serialize :conditions, Hash
+  serialize :dependencies, Hash
 
   def triggered?
     get_value.send(operator, value)

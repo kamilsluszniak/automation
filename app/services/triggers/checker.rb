@@ -4,6 +4,7 @@ module Triggers
   class Checker
     def call
       Trigger.all.each do |trigger|
+        DependenciesUpdater.new(trigger).call
         trigger.alerts.each do |alert|
           alert.update(active: trigger.triggered?)
           AlertMailer.alert_triggered_email(alert.user, alert).deliver if alert.active?
