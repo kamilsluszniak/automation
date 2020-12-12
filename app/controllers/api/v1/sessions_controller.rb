@@ -3,15 +3,11 @@
 module Api
   module V1
     class SessionsController < Devise::SessionsController
-      skip_before_action :verify_authenticity_token, only: %i[create destroy]
+      skip_before_action :verify_authenticity_token, only: %i[create]
       respond_to :json
 
       def create
         super { |resource| @resource = resource }
-      end
-
-      def destroy
-        super
       end
 
       private
