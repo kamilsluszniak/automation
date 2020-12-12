@@ -4,6 +4,7 @@ module Api
   module V1
     class BaseController < ApplicationController
       respond_to :json
+      rescue_from ActiveRecord::RecordNotFound, with: :not_found_response
 
       private
 
@@ -19,6 +20,10 @@ module Api
         user = @api_key.user
         sign_in(:user, user)
         user
+      end
+
+      def not_found_response
+        render json: { error: 'Not found' }, status: :not_found
       end
     end
   end

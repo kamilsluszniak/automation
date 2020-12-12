@@ -90,6 +90,15 @@ RSpec.describe Api::V1::DevicesController, type: :request do
             }.deep_stringify_keys
           )
         end
+
+        it 'returns info when not found' do
+          get '/api/v1/devices/playstation', params: { current_settings: true },
+                                             headers: auth_headers
+
+          expect(response.status).to eq(404)
+          data = JSON.parse(response.body)
+          expect(data['error']).to eq('Not found')
+        end
       end
     end
   end
