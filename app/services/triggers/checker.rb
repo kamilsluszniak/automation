@@ -3,7 +3,7 @@
 module Triggers
   class Checker
     def call
-      Trigger.all.each do |trigger|
+      Trigger.includes(:alerts).each do |trigger|
         DependenciesUpdater.new(trigger).call
         trigger.alerts.each do |alert|
           alert.update(active: trigger.triggered?)

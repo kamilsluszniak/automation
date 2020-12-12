@@ -41,7 +41,7 @@ RSpec.describe Triggers::Checker, type: :model do
         allow(trigger_instance).to receive(:triggered?).and_return(true)
         allow(trigger_instance).to receive(:dependencies).and_return(dependencies)
         allow(trigger_instance).to receive(:alerts).and_return(alerts)
-        allow(Trigger).to receive(:all).and_return([trigger_instance])
+        allow(Trigger).to receive(:includes).with(:alerts).and_return([trigger_instance])
       end
 
       it 'runs checks, activates alerts and sends emails' do
@@ -61,7 +61,7 @@ RSpec.describe Triggers::Checker, type: :model do
         allow(trigger_instance).to receive(:triggered?).and_return(false)
         allow(trigger_instance).to receive(:dependencies).and_return(dependencies)
         allow(trigger_instance).to receive(:alerts).and_return(alerts)
-        allow(Trigger).to receive(:all).and_return([trigger_instance])
+        allow(Trigger).to receive(:includes).with(:alerts).and_return([trigger_instance])
       end
 
       it 'runs checks, not activates alerts and not sends emails' do
@@ -94,7 +94,7 @@ RSpec.describe Triggers::Checker, type: :model do
         allow(trigger_instance).to receive(:triggered?).and_return(true)
         allow(trigger_instance).to receive(:dependencies).and_return(dependencies)
         allow(trigger_instance).to receive(:alerts).and_return([])
-        allow(Trigger).to receive(:all).and_return([trigger_instance])
+        allow(Trigger).to receive(:includes).with(:alerts).and_return([trigger_instance])
       end
 
       it 'sets dependent device`s settings' do
@@ -157,7 +157,7 @@ RSpec.describe Triggers::Checker, type: :model do
         allow(trigger_instance).to receive(:triggered?).and_return(false)
         allow(trigger_instance).to receive(:dependencies).and_return(dependencies)
         allow(trigger_instance).to receive(:alerts).and_return([])
-        allow(Trigger).to receive(:all).and_return([trigger_instance])
+        allow(Trigger).to receive(:includes).with(:alerts).and_return([trigger_instance])
       end
 
       it 'sets dependent device`s settings when not triggered to override' do
@@ -195,7 +195,7 @@ RSpec.describe Triggers::Checker, type: :model do
         allow(trigger_instance).to receive(:triggered?).and_return(true)
         allow(trigger_instance).to receive(:dependencies).and_return(dependencies)
         allow(trigger_instance).to receive(:alerts).and_return([])
-        allow(Trigger).to receive(:all).and_return([trigger_instance])
+        allow(Trigger).to receive(:includes).with(:alerts).and_return([trigger_instance])
       end
 
       it 'sets trigger device`s original settings' do
@@ -258,7 +258,7 @@ RSpec.describe Triggers::Checker, type: :model do
         allow(trigger_instance).to receive(:triggered?).and_return(false)
         allow(trigger_instance).to receive(:dependencies).and_return(dependencies)
         allow(trigger_instance).to receive(:alerts).and_return([])
-        allow(Trigger).to receive(:all).and_return([trigger_instance])
+        allow(Trigger).to receive(:includes).with(:alerts).and_return([trigger_instance])
       end
 
       it 'sets dependent device`s settings' do
