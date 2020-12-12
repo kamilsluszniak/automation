@@ -37,7 +37,6 @@ RSpec.describe Triggers::Checker, type: :model do
     let(:dependencies) { {} }
 
     context 'when trigger is triggered' do
-
       before do
         allow(trigger_instance).to receive(:triggered?).and_return(true)
         allow(trigger_instance).to receive(:dependencies).and_return(dependencies)
@@ -89,7 +88,7 @@ RSpec.describe Triggers::Checker, type: :model do
         }
       end
 
-      let!(:device) { create(:device, name: 'dependent_device', user: user)}
+      let!(:device) { create(:device, name: 'dependent_device', user: user) }
 
       before do
         allow(trigger_instance).to receive(:triggered?).and_return(true)
@@ -151,7 +150,7 @@ RSpec.describe Triggers::Checker, type: :model do
         }
       end
 
-      let!(:device) { create(:device, name: 'dependent_device', user: user)}
+      let!(:device) { create(:device, name: 'dependent_device', user: user) }
       let(:trigger_instance) { instance_double(Trigger) }
 
       before do
@@ -189,7 +188,7 @@ RSpec.describe Triggers::Checker, type: :model do
         }
       end
 
-      let!(:device) { create(:device, name: 'dependent_device', user: user)}
+      let!(:device) { create(:device, name: 'dependent_device', user: user) }
       let(:trigger_instance) { instance_double(Trigger) }
 
       before do
@@ -230,13 +229,13 @@ RSpec.describe Triggers::Checker, type: :model do
       let(:dependencies) do
         {
           devices: {
-            dependent_device_1: {
+            dependent_device1: {
               triggered: {
                 on: true
               },
               not_triggered: {
                 original_settings: device_settings
-              },
+              }
 
             }
           }
@@ -246,7 +245,7 @@ RSpec.describe Triggers::Checker, type: :model do
       let!(:device) do
         create(
           :device,
-          name: 'dependent_device_1',
+          name: 'dependent_device1',
           user: user,
           settings: {
             on: true

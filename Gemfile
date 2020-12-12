@@ -27,7 +27,6 @@ gem 'influxdb-rails'
 gem 'mailgun-rails'
 gem 'pry-stack_explorer'
 gem 'rack-cors'
-gem 'rubocop-rails', require: false
 gem 'time_splitter'
 gem 'whenever', require: false
 gem 'wisper'
@@ -53,6 +52,8 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'faker'
   gem 'rails-controller-testing'
+  gem 'rubocop-rails', require: false
+  gem 'rubocop-rspec'
   gem 'selenium-webdriver'
   gem 'spring-commands-rspec'
   %w[rspec-core rspec-expectations rspec-mocks rspec-rails rspec-support].each do |lib|
@@ -72,12 +73,12 @@ group :development do
   gem 'web-console', '>= 3.3.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'capistrano'
+  gem 'capistrano3-puma'
   gem 'capistrano-bundler', require: false
   gem 'capistrano-npm'
   gem 'capistrano-nvm', require: false
   gem 'capistrano-rails', require: false
   gem 'capistrano-rvm'
-  gem 'capistrano3-puma'
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
 end
