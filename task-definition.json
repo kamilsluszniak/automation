@@ -26,7 +26,7 @@
                 },
                 {
                     "name": "INFLUX_HOST",
-                    "value": "influx"
+                    "value": "172.31.36.77"
                 },
                 {
                     "name": "POSTGRES_HOST",
@@ -44,57 +44,15 @@
             "essential": true,
             "image": "252636471646.dkr.ecr.us-east-2.amazonaws.com/automation:latest",
             "memoryReservation": 256,
-            "links": [
-                "influx:influx"
-            ],
-            "name": "api"
-        },
-        {
-            "essential": true,
-            "image": "252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-influx:latest",
-            "memoryReservation": 256,
-            "mountPoints": [
-                {
-                    "containerPath": "/var/lib/influxdb",
-                    "sourceVolume": "HomeEc2-UserInflux"
-                }
-            ],
-            "name": "influx"
-        },
-        {
-            "essential": true,
-            "image": "252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-proxy:latest",
-            "links": [
-                "api",
-                "web"
-            ],
-            "memoryReservation": 16,
-            "name": "nginx",
+            "name": "api",
             "portMappings": [
                 {
-                    "containerPort": 80,
-                    "hostPort": 80
-                },
-                {
-                    "containerPort": 443,
-                    "hostPort": 443
+                  "containerPort": 3000,
+                  "hostPort": 0
                 }
             ]
-        },
-        {
-            "essential": true,
-            "image": "252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-web:latest",
-            "memoryReservation": 256,
-            "name": "web"
         }
+
     ],
-    "family": "automation-task",
-    "volumes": [
-        {
-            "host": {
-                "sourcePath": "/home/ec2-user/influx"
-            },
-            "name": "HomeEc2-UserInflux"
-        }
-    ]
+    "family": "automation-api"
 }

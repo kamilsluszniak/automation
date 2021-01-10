@@ -286,6 +286,7 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    redis (4.2.5)
     ref (2.0.0)
     regexp_parser (2.0.0)
     responders (3.0.0)
@@ -403,6 +404,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 6.0.2.2)
   rails-controller-testing
+  redis
   rspec-core!
   rspec-expectations!
   rspec-mocks!
