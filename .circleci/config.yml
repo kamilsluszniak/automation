@@ -85,7 +85,7 @@ jobs:
       - run:
           name: Restart task
           command: |
-            aws ecs update-service --cluster automation-cluster --service automation-service --force-new-deployment
+            aws ecs update-service --cluster automation-cluster --service automation-api-service --force-new-deployment
 
 workflows:
   version: 2

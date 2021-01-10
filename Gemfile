@@ -27,6 +27,7 @@ gem 'influxdb-rails'
 gem 'mailgun-rails'
 gem 'pry-stack_explorer'
 gem 'rack-cors'
+gem 'redis'
 gem 'time_splitter'
 gem 'whenever', require: false
 gem 'wisper'
