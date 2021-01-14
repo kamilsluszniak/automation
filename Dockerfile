@@ -12,7 +12,7 @@ rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 ENV RAILS_ENV production
 ENV RAILS_LOG_TO_STDOUT true
 ENV RAILS_MASTER_KEY c5117e483827518b4e229b4990efd79a
-ENV REDIS_PASSWORD Dup@cycki1
+ENV RUBYOPT -W:no-deprecated
 
 WORKDIR /app
 COPY Gemfile /app/Gemfile

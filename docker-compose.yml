@@ -5,7 +5,7 @@ services:
     networks:
       net1:
         aliases:
-          - api
+          - web
     ports:
       - 3001:3001
     mem_reservation: 256m
@@ -20,6 +20,9 @@ services:
       - influx
     links:
       - influx:influx
+      - redis:redis
+    volumes:
+      - ./:/app
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_PASSWORD=dupacycki1
@@ -29,6 +32,8 @@ services:
       - POSTGRES_HOST=automation-postgres.cqjw7kovlc3w.us-east-2.rds.amazonaws.com
       - POSTGRES_PORT=5432
       - RAILS_ENV=production
+      - REDIS_PASSWORD=superpassword
+      - REDIS_HOST=redis
     ports:
       - 3000:3000
     command: bundle exec rails s
@@ -37,11 +42,23 @@ services:
     image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-influx:latest
     mem_reservation: 256m
     volumes:
-      - /home/ec2-user/influx:/var/lib/influxdb
+      - ./tmp/influx:/var/lib/influxdb
     networks:
       net1:
         aliases:
           - influx
+  redis:
+    image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-redis:latest
+    mem_reservation: 256m
+    environment:
+      - REDIS_PASSWORD=superpassword
+    volumes:
+      - ./tmp/redis:/bitnami/redis/data
+    networks:
+      net1:
+        aliases:
+          - redis
+
   nginx:
     image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-proxy:latest
     mem_reservation: 16m

@@ -33,6 +33,10 @@
                     "value": "172.31.36.77"
                 },
                 {
+                    "name": "REDIS_PASSWORD",
+                    "value": "Dup@cycki1"
+                },
+                {
                     "name": "POSTGRES_HOST",
                     "value": "automation-postgres.cqjw7kovlc3w.us-east-2.rds.amazonaws.com"
                 },
