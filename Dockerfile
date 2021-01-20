@@ -17,7 +17,7 @@ ENV RUBYOPT -W:no-deprecated
 WORKDIR /app
 COPY Gemfile /app/Gemfile
 COPY Gemfile.lock /app/Gemfile.lock
-RUN bundle install
+RUN bundle install --without development test
 # Install the application
 COPY . /app
 RUN /bin/bash -c 'chmod -R 755 ./entrypoints/docker-entrypoint.sh'
