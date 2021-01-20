@@ -3,6 +3,7 @@
 module Api
   module V1
     class BaseController < ApplicationController
+      skip_before_action :verify_authenticity_token
       respond_to :json
       rescue_from ActiveRecord::RecordNotFound, with: :not_found_response
 
