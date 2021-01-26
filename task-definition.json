@@ -26,11 +26,11 @@
                 },
                 {
                     "name": "INFLUX_HOST",
-                    "value": "172.31.36.77"
+                    "value": "172.31.43.178"
                 },
                 {
                     "name": "REDIS_HOST",
-                    "value": "172.31.36.77"
+                    "value": "172.31.43.178"
                 },
                 {
                     "name": "REDIS_PASSWORD",

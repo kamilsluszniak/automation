@@ -18,6 +18,8 @@ ActiveRecord::Schema.define(version: 2020_12_09_171209) do
   create_table "alerts", force: :cascade do |t|
     t.string "name"
     t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.boolean "active", default: false
     t.index ["user_id"], name: "index_alerts_on_user_id"
   end
@@ -25,6 +27,8 @@ ActiveRecord::Schema.define(version: 2020_12_09_171209) do
   create_table "alerts_triggers", id: false, force: :cascade do |t|
     t.bigint "alert_id"
     t.bigint "trigger_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.index ["alert_id"], name: "index_alerts_triggers_on_alert_id"
     t.index ["trigger_id"], name: "index_alerts_triggers_on_trigger_id"
   end
@@ -34,6 +38,8 @@ ActiveRecord::Schema.define(version: 2020_12_09_171209) do
     t.string "key"
     t.integer "permission_type"
     t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_api_keys_on_user_id"
   end
 
@@ -79,6 +85,7 @@ ActiveRecord::Schema.define(version: 2020_12_09_171209) do
     t.string "status"
     t.boolean "on"
     t.string "slug"
+    t.decimal "temperature"
     t.decimal "distance"
     t.string "intensity_override"
     t.integer "co2valve_on_time"
