@@ -15,14 +15,14 @@ executors:
           BUNDLE_RETRY: 3
           BUNDLER_VERSION: 2.0.1
           RAILS_ENV: test
-          DB_HOST: 127.0.0.1
-          PG_HOST: 127.0.0.1
-          PGUSER: pi
+          POSTGRES_HOST: 127.0.0.1
+          POSTGRES_USER: automation
+          POSTGRES_DB: automation_test
           RUBYOPT: '-W:no-deprecated'
       - image: circleci/postgres:12.0
         environment:
           POSTGRES_DB: automation_test
-          POSTGRES_USER: pi
+          POSTGRES_USER: automation
       - image: influxdb:1.8.0
         environment:
           INFLUXDB_DB: automation
