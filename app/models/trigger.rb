@@ -8,13 +8,13 @@ class Trigger < ApplicationRecord
   serialize :dependencies, Hash
 
   def triggered?
-    get_value.send(operator, value)
+    get_value&.send(operator, value)
   end
 
   private
 
-  def client
-    @client ||= Reports.new(device)
+  def measurements_reader
+    @measurements_reader ||= Measurements::Reader.new(device)
   end
 
   def value
@@ -34,7 +34,7 @@ class Trigger < ApplicationRecord
   end
 
   def get_value(minutes_ago: 1)
-    data_points = client.read_data_points(metric, minutes_ago, 'm')
+    data_points = measurements_reader.call(metric, minutes_ago: minutes_ago)
     data_points.dig(0, 'values', 0, 'value')
   end
 end
