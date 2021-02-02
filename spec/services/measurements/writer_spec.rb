@@ -19,7 +19,7 @@ RSpec.describe Measurements::Writer, type: :model do
       end
 
       it 'writes measurements' do
-        expect(subject.call(measurements).code).to eq(204)
+        expect(subject.call(measurements).code).to eq('204')
       end
     end
   end

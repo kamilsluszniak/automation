@@ -2,10 +2,10 @@
 
 module Triggers
   class DependenciesUpdater
-    def initialize(trigger)
+    def initialize(trigger, is_triggered)
       @trigger = trigger
       @dependencies = trigger.dependencies.with_indifferent_access
-      @state = trigger.triggered? ? :triggered : :not_triggered
+      @state = is_triggered ? :triggered : :not_triggered
     end
 
     def call

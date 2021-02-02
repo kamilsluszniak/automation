@@ -26,7 +26,7 @@ default: &default
 development:
   <<: *default
   database: automation_development
-  port: 5432
+  port: 3317
   host: <%= ENV.fetch("POSTGRES_HOST", 'localhost') %>
 
   # The specified database role being used to connect to postgres.

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Triggers::DependenciesUpdater, type: :model do
   context 'when triggers and alerts exist' do
-    subject(:dependencies_updater) { Triggers::DependenciesUpdater.new(trigger) }
+    subject(:dependencies_updater) { Triggers::DependenciesUpdater.new(trigger, is_triggered) }
     let(:user) { create(:user) }
     let(:alerts) { create_list(:alert, 2, user: user) }
     let(:trigger) { create(:trigger, user: user, alerts: alerts) }
@@ -42,6 +42,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
     end
 
     context 'when dependency and dependent device exist and triggered' do
+      let(:is_triggered) { true }
       let(:dependencies) do
         {
           devices: {
@@ -58,10 +59,6 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
       end
 
       let!(:device) { create(:device, name: 'dependent_device', user: user) }
-
-      before do
-        allow(trigger).to receive(:triggered?).and_return(true)
-      end
 
       it 'sets dependent device`s settings' do
         expect(device.settings).to eq(
@@ -101,6 +98,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
     end
 
     context 'when dependency and dependent device exist, not triggered with override' do
+      let(:is_triggered) { false }
       let(:dependencies) do
         {
           devices: {
@@ -118,10 +116,6 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
 
       let!(:device) { create(:device, name: 'dependent_device', user: user) }
 
-      before do
-        allow(trigger).to receive(:triggered?).and_return(false)
-      end
-
       it 'sets dependent device`s settings when not triggered to override' do
         expect(device.settings).to eq(device_settings)
 
@@ -135,6 +129,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
     end
 
     context 'when dependency and dependent device exist, triggered with original' do
+      let(:is_triggered) { true }
       let(:dependencies) do
         {
           devices: {
@@ -151,10 +146,6 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
       end
 
       let!(:device) { create(:device, name: 'dependent_device', user: user) }
-
-      before do
-        allow(trigger).to receive(:triggered?).and_return(true)
-      end
 
       it 'sets trigger device`s original settings' do
         expect(device.settings).to eq(device_settings)
@@ -184,6 +175,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
     end
 
     context 'when dependency and dependent device exist and returning from triggered' do
+      let(:is_triggered) { false }
       let(:dependencies) do
         {
           devices: {
@@ -210,10 +202,6 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
         )
       end
       let(:trigger_instance) { instance_double(Trigger) }
-
-      before do
-        allow(trigger).to receive(:triggered?).and_return(false)
-      end
 
       it 'sets dependent device`s settings' do
         expect(device.settings).to eq(
