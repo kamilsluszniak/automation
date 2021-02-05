@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_09_171209) do
+ActiveRecord::Schema.define(version: 2021_01_30_165110) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -115,12 +115,15 @@ ActiveRecord::Schema.define(version: 2020_12_09_171209) do
 
   create_table "triggers", force: :cascade do |t|
     t.string "name"
-    t.string "conditions"
     t.string "type"
     t.bigint "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "dependencies"
+    t.string "value"
+    t.string "operator"
+    t.string "metric"
+    t.string "device"
     t.index ["user_id"], name: "index_triggers_on_user_id"
   end
 

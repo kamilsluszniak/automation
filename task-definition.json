@@ -26,7 +26,19 @@
                 },
                 {
                     "name": "INFLUX_HOST",
-                    "value": "172.31.43.178"
+                    "value": "https://eu-central-1-1.aws.cloud2.influxdata.com"
+                },
+                {
+                    "name": "INFLUX_TOKEN",
+                    "value": "ATpsNrBPJGu_Bd0tEunOVeBA3QTipXKaDj6e6u1Xt6iJmuXf5DWo1EsLDzx9OGoL5Rcbt2GB88KzACneCDAcWw=="
+                },
+                {
+                    "name": "INFLUX_BUCKET",
+                    "value": "kamil.sluszniak.aws's Bucket"
+                },
+                {
+                    "name": "INFLUX_ORG",
+                    "value": "kamil.sluszniak.aws@gmail.com"
                 },
                 {
                     "name": "REDIS_HOST",
@@ -47,6 +59,14 @@
                 {
                     "name": "RAILS_ENV",
                     "value": "production"
+                },
+                {
+                    "name": "MAILGUN_API_KEY",
+                    "value": "6910990f1173205bade330474b4cdd27-53c13666-0506781b"
+                },
+                {
+                    "name": "MAILGUN_DOMAIN",
+                    "value": "https://api.mailgun.net/v3/sandboxa0775b1266e74a18a97a3ee5c7fbc1b3.mailgun.org"
                 }
             ],
             "essential": true,

@@ -14,8 +14,8 @@ Rails.application.routes.draw do
                           }
       resources :devices
 
-      resources :reports, only: [:create]
-      match 'reports/show' => 'reports#show', :via => :get
+      resources :measurements, only: [:create]
+      match 'measurements/show' => 'measurements#show', :via => :get
       resources :charts, only: :show
     end
   end

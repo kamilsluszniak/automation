@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'helpers/reports_helpers'
 
-RSpec.describe Api::V1::ReportsController, type: :request do
+RSpec.describe Api::V1::MeasurementsController, type: :request do
   context 'when device is created' do
     let(:user) { create(:user) }
     let(:device) { create(:device, user: user) }
@@ -20,7 +20,7 @@ RSpec.describe Api::V1::ReportsController, type: :request do
 
     context 'when no api token or key is present' do
       it 'not update Device measurements on CREATE without an access token' do
-        post '/api/v1/reports', params: { device: { name: device.name } }
+        post '/api/v1/measurements', params: { device: { name: device.name } }
         expect(response).to have_http_status(401)
       end
     end
@@ -32,13 +32,13 @@ RSpec.describe Api::V1::ReportsController, type: :request do
         body = {
           device: {
             name: device.name,
-            reports: {
+            measurements: {
               test: 1
             }
           }
         }
 
-        post '/api/v1/reports', params: body.to_json, headers: headers
+        post '/api/v1/measurements', params: body.to_json, headers: headers
 
         expect(response).to have_http_status(200)
         resp = JSON.parse(response.body)

@@ -25,16 +25,17 @@ services:
       - 3001:3001
     mem_reservation: 256m
   api:
-    image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation:latest
+    image: automation:latest
     mem_reservation: 256m
     networks:
       net1:
         aliases:
           - api
     depends_on:
-      - influx
+      - influxdb
+      - influxdbcli
     links:
-      - influx:influx
+      - influxdb:influxdb
       - redis:redis
       - db:db
     volumes:
@@ -43,9 +44,11 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_PASSWORD=superpassword
       - POSTGRES_USER=automation
-      - INFLUX_HOST=influx
+      - INFLUX_HOST=http://influxdb:8086
+      - INFLUX_BUCKET=mybucket
+      - INFLUX_ORG=myorg
+      - INFLUX_TOKEN=mytoken
       - POSTGRES_HOST=db
-      - POSTGRES_PORT=3317
       - REDIS_PASSWORD=superpassword
       - REDIS_HOST=redis
       - RAILS_ENV=development
@@ -54,15 +57,32 @@ services:
       - 3000:3000
     command: bundle exec rails s
 
-  influx:
-    image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-influx:latest
+  influxdb:
+    image: quay.io/influxdb/influxdb:v2.0.3
     mem_reservation: 256m
     volumes:
-      - ./tmp/influx:/var/lib/influxdb
+      - ./tmp/influx:/.influxdbv2
+    ports:
+      - 8086:8086
     networks:
       net1:
         aliases:
-          - influx
+          - influxdb
+  # Use the influx cli to set up an influxdb instance.
+  influxdbcli:
+    links:
+      - influxdb
+    image: quay.io/influxdb/influxdb:v2.0.3
+    # Use these same configurations parameters in your telegraf configuration, mytelegraf.conf.
+    entrypoint: influx setup --bucket mybucket -t mytoken -o myorg --username=myusername --password=password --host=http://influxdb:8086 -f
+    # Wait for the influxd service in the influxdb container has fully bootstrapped before trying to setup an influxdb instance with the influxdb_cli service.
+    restart: on-failure:10
+    depends_on:
+      - influxdb
+    networks:
+      net1:
+        aliases:
+          - influxdbcli
   redis:
     image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-redis:latest
     mem_reservation: 256m

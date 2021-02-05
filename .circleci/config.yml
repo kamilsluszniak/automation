@@ -16,6 +16,7 @@ executors:
           BUNDLER_VERSION: 2.0.1
           RAILS_ENV: test
           POSTGRES_HOST: 127.0.0.1
+          POSTGRES_PORT: 5432
           POSTGRES_USER: automation
           POSTGRES_DB: automation_test
           RUBYOPT: '-W:no-deprecated'
@@ -23,10 +24,9 @@ executors:
         environment:
           POSTGRES_DB: automation_test
           POSTGRES_USER: automation
-      - image: influxdb:1.8.0
-        environment:
-          INFLUXDB_DB: automation
-
+      - image: quay.io/influxdb/influxdb:v2.0.3
+      - image: quay.io/influxdb/influxdb:v2.0.3
+        command: bash -c 'sleep 10 && influx setup --bucket mybucket -t mytoken -o myorg --username=myusername --password=password --host=http://127.0.0.1:8086 -f'
 
 commands:
   configure_bundler:
