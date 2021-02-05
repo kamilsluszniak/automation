@@ -25,7 +25,7 @@ module Measurements
         bucket: bucket,
         org: ENV.fetch('INFLUX_ORG'),
         precision: InfluxDB2::WritePrecision::MILLISECOND,
-        use_ssl: false
+        use_ssl: Rails.env.production? ? true : false
       )
     end
 
