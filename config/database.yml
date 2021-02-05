@@ -87,6 +87,7 @@ test:
 production:
   <<: *default
   host: <%= ENV['POSTGRES_HOST'] %>
+  port: 5432
   database: automation_production
   username: <%= ENV['POSTGRES_USER'] %>
   password: <%= ENV['POSTGRES_PASSWORD'] %>
