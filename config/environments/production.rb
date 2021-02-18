@@ -93,8 +93,9 @@ Rails.application.configure do
   config.require_master_key = true
 
   config.action_mailer.delivery_method = :mailgun
+  # credentials from ENV doesn't work...
   config.action_mailer.mailgun_settings = {
-    api_key: ENV['MAILGUN_API_KEY'],
-    domain: ENV['MAILGUN_DOMAIN']
+    api_key: '6910990f1173205bade330474b4cdd27-53c13666-0506781b',
+    domain: 'sandboxa0775b1266e74a18a97a3ee5c7fbc1b3.mailgun.org'
   }
 end

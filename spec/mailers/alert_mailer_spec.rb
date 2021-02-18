@@ -12,7 +12,7 @@ RSpec.describe AlertMailer, type: :mailer do
     it 'renders the headers' do
       expect(mail.subject).to eq("Alert #{alert.name} was triggered")
       expect(mail.to).to eq([user.email])
-      expect(mail.from).to eq(['automation@example.com'])
+      expect(mail.from).to eq(['easyautomateme@no-reply.com'])
     end
 
     it 'renders the body' do
