@@ -10,14 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_19_094609) do
+ActiveRecord::Schema.define(version: 2021_02_19_181321) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
   create_table "alerts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.bigint "integer_id"
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -36,7 +35,6 @@ ActiveRecord::Schema.define(version: 2021_02_19_094609) do
   end
 
   create_table "api_keys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.bigint "integer_id"
     t.string "name"
     t.string "key"
     t.integer "permission_type"
@@ -115,7 +113,6 @@ ActiveRecord::Schema.define(version: 2021_02_19_094609) do
   end
 
   create_table "triggers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.bigint "integer_id"
     t.string "name"
     t.string "type"
     t.datetime "created_at", precision: 6, null: false
@@ -130,7 +127,6 @@ ActiveRecord::Schema.define(version: 2021_02_19_094609) do
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.bigint "integer_id"
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
