@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class AddForeignKeysOfUserId < ActiveRecord::Migration[6.0]
-  # rubocop:disable Metrics/AbcSize
-  # rubocop:disable Metrics/MethodLength
   def up
     add_reference :alerts, :user, type: :uuid, index: true
     add_reference :api_keys, :user, type: :uuid, index: true
@@ -16,43 +14,41 @@ class AddForeignKeysOfUserId < ActiveRecord::Migration[6.0]
     add_foreign_key :triggers, :users
     add_foreign_key :devices, :users
 
-    Device.all.each do |device|
-      u = User.find_by(integer_id: device.user_old_id)
-      device.user = u
-      device.save
-    end
+    # Device.all.each do |device|
+    #   u = User.find_by(integer_id: device.user_old_id)
+    #   device.user_id = u.id
+    #   device.save
+    # end
 
-    Alert.all.each do |alert|
-      u = User.find_by(integer_id: alert.user_old_id)
-      alert.user = u
-      alert.save
-    end
+    # Alert.all.each do |alert|
+    #   u = User.find_by(integer_id: alert.user_old_id)
+    #   alert.user_id = u.id
+    #   alert.save
+    # end
 
-    Trigger.all.each do |trigger|
-      u = User.find_by(integer_id: trigger.user_old_id)
-      trigger.user = u
-      trigger.save
-    end
+    # Trigger.all.each do |trigger|
+    #   u = User.find_by(integer_id: trigger.user_old_id)
+    #   trigger.user_id = u.id
+    #   trigger.save
+    # end
 
-    ApiKey.all.each do |key|
-      u = User.find_by(integer_id: key.user_old_id)
-      key.user = u
-      key.save
-    end
+    # ApiKey.all.each do |key|
+    #   u = User.find_by(integer_id: key.user_old_id)
+    #   key.user_id = u.id
+    #   key.save
+    # end
 
-    change_column_null :alerts, :user_id, false
-    change_column_null :api_keys, :user_id, false
-    change_column_null :charts, :user_id, false
-    change_column_null :triggers, :user_id, false
-    change_column_null :devices, :user_id, false
+    # change_column_null :alerts, :user_id, false
+    # change_column_null :api_keys, :user_id, false
+    # change_column_null :charts, :user_id, false
+    # change_column_null :triggers, :user_id, false
+    # change_column_null :devices, :user_id, false
 
-    remove_column :devices, :user_old_id
-    remove_column :alerts, :user_old_id
-    remove_column :triggers, :user_old_id
-    remove_column :api_keys, :user_old_id
+    # remove_column :devices, :user_old_id
+    # remove_column :alerts, :user_old_id
+    # remove_column :triggers, :user_old_id
+    # remove_column :api_keys, :user_old_id
   end
-  # rubocop:enable Metrics/AbcSize
-  # rubocop:enable Metrics/MethodLength
 
   def down
     change_column_null :alerts, :user_id, true
