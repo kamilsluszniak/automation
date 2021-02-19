@@ -6,7 +6,6 @@ class Device < ApplicationRecord
 
   serialize :settings
   belongs_to :user
-  has_many :charts, dependent: :destroy
 
   def report_metrics(metrics_array)
     Reports.new(name).write_data_points(metrics_array)
