@@ -19,16 +19,25 @@ class AddForeignKeysOfUserId < ActiveRecord::Migration[6.0]
     Device.all.each do |device|
       u = User.find_by(integer_id: device.user_old_id)
       device.user = u
+      device.save
     end
 
     Alert.all.each do |alert|
       u = User.find_by(integer_id: alert.user_old_id)
       alert.user = u
+      alert.save
     end
 
     Trigger.all.each do |trigger|
       u = User.find_by(integer_id: trigger.user_old_id)
       trigger.user = u
+      trigger.save
+    end
+
+    ApiKey.all.each do |key|
+      u = User.find_by(integer_id: key.user_old_id)
+      key.user = u
+      key.save
     end
 
     change_column_null :alerts, :user_id, false
@@ -40,6 +49,7 @@ class AddForeignKeysOfUserId < ActiveRecord::Migration[6.0]
     remove_column :devices, :user_old_id
     remove_column :alerts, :user_old_id
     remove_column :triggers, :user_old_id
+    remove_column :api_keys, :user_old_id
   end
   # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/MethodLength

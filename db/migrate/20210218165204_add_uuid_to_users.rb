@@ -18,16 +18,25 @@ class AddUuidToUsers < ActiveRecord::Migration[6.0]
     add_column :devices, :user_old_id, :integer
     Device.all.each do |device|
       device.user_old_id = device.user_id
+      device.save
     end
 
     add_column :alerts, :user_old_id, :integer
     Alert.all.each do |alert|
       alert.user_old_id = alert.user_id
+      alert.save
     end
 
     add_column :triggers, :user_old_id, :integer
     Trigger.all.each do |trigger|
       trigger.user_old_id = trigger.user_id
+      trigger.save
+    end
+
+    add_column :api_keys, :user_old_id, :integer
+    ApiKey.all.each do |key|
+      key.user_old_id = key.user_id
+      key.save
     end
 
     remove_column :alerts, :user_id
