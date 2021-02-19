@@ -10,54 +10,55 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_30_165110) do
+ActiveRecord::Schema.define(version: 2021_02_19_094609) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
-  create_table "alerts", force: :cascade do |t|
+  create_table "alerts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "integer_id"
     t.string "name"
-    t.bigint "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "active", default: false
+    t.uuid "user_id", null: false
     t.index ["user_id"], name: "index_alerts_on_user_id"
   end
 
   create_table "alerts_triggers", id: false, force: :cascade do |t|
-    t.bigint "alert_id"
-    t.bigint "trigger_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.uuid "alert_id", null: false
+    t.uuid "trigger_id", null: false
     t.index ["alert_id"], name: "index_alerts_triggers_on_alert_id"
     t.index ["trigger_id"], name: "index_alerts_triggers_on_trigger_id"
   end
 
-  create_table "api_keys", force: :cascade do |t|
+  create_table "api_keys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "integer_id"
     t.string "name"
     t.string "key"
     t.integer "permission_type"
-    t.bigint "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.uuid "user_id", null: false
     t.index ["user_id"], name: "index_api_keys_on_user_id"
   end
 
-  create_table "charts", force: :cascade do |t|
+  create_table "charts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name"
     t.string "metric"
     t.integer "default_duration"
     t.string "default_duration_unit"
-    t.bigint "user_id"
-    t.bigint "device_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["device_id"], name: "index_charts_on_device_id"
+    t.uuid "user_id", null: false
     t.index ["name"], name: "index_charts_on_name", unique: true
     t.index ["user_id"], name: "index_charts_on_user_id"
   end
 
-  create_table "devices", force: :cascade do |t|
+  create_table "devices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -92,9 +93,9 @@ ActiveRecord::Schema.define(version: 2021_01_30_165110) do
     t.integer "co2valve_off_time"
     t.float "light_intensity_lvl"
     t.boolean "water_input_valve_on", default: false
-    t.bigint "user_id"
     t.string "connected_devices"
     t.string "settings"
+    t.uuid "user_id", null: false
     t.index ["authentication_token"], name: "index_devices_on_authentication_token", unique: true
     t.index ["name"], name: "index_devices_on_name", unique: true
     t.index ["reset_password_token"], name: "index_devices_on_reset_password_token", unique: true
@@ -113,10 +114,10 @@ ActiveRecord::Schema.define(version: 2021_01_30_165110) do
     t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type"
   end
 
-  create_table "triggers", force: :cascade do |t|
+  create_table "triggers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "integer_id"
     t.string "name"
     t.string "type"
-    t.bigint "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "dependencies"
@@ -124,10 +125,12 @@ ActiveRecord::Schema.define(version: 2021_01_30_165110) do
     t.string "operator"
     t.string "metric"
     t.string "device"
+    t.uuid "user_id", null: false
     t.index ["user_id"], name: "index_triggers_on_user_id"
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "integer_id"
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -152,7 +155,6 @@ ActiveRecord::Schema.define(version: 2021_01_30_165110) do
   add_foreign_key "alerts_triggers", "alerts"
   add_foreign_key "alerts_triggers", "triggers"
   add_foreign_key "api_keys", "users"
-  add_foreign_key "charts", "devices"
   add_foreign_key "charts", "users"
   add_foreign_key "devices", "users"
   add_foreign_key "triggers", "users"

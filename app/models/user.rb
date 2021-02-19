@@ -10,6 +10,7 @@ class User < ApplicationRecord
   has_many :devices, dependent: :destroy
   has_many :charts, dependent: :destroy
   has_many :api_keys, dependent: :destroy
+  has_many :alerts, dependent: :destroy
 
   validates :name, presence: true
 end
