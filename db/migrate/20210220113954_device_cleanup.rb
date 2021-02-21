@@ -27,7 +27,9 @@ class DeviceCleanup < ActiveRecord::Migration[6.0]
     remove_column(:devices, :temperature_set, :decimal)
     remove_column(:devices, :status, :string)
     remove_column(:devices, :on, :boolean)
-    remove_column(:devices, :temperature, :decimal)
+    if ActiveRecord::Base.connection.column_exists?(:devices, :temperature)
+      remove_column(:devices, :temperature, :decimal)
+    end
     remove_column(:devices, :distance, :decimal)
     remove_column(:devices, :intensity_override, :string)
     remove_column(:devices, :co2valve_on_time, :integer)
