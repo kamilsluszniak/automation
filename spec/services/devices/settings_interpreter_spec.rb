@@ -6,6 +6,84 @@ RSpec.describe Devices::SettingsInterpreter, type: :model do
   describe '#call' do
     subject { described_class.new(settings) }
 
+    context 'when settings are not sorted' do
+      # rubocop:disable Metrics/BlockLength
+      let(:settings) do
+        {
+          lights: {
+            time_dependent: true,
+            values: {
+              540 => {
+                on: true,
+                dim_factor: 1,
+                p_factor: 5.0,
+                i_factor: 0.05,
+                d_factor: 3.0,
+                temp0set: 40
+              },
+              1260 => {
+                on: true,
+                dim_factor: 1,
+                p_factor: 5.0,
+                i_factor: 0.05,
+                d_factor: 3.0,
+                temp0set: 35,
+                uv_on: true
+              },
+              1320 => {
+                on: true,
+                dim_factor: 1,
+                p_factor: 5.0,
+                i_factor: 0.05,
+                d_factor: 3.0,
+                temp0set: 20
+              },
+              1380 => {
+                on: false,
+                dim_factor: 1,
+                p_factor: 5.0,
+                i_factor: 0.05,
+                d_factor: 3.0,
+                temp0set: 20
+              },
+              600 => {
+                on: true,
+                dim_factor: 1,
+                p_factor: 5.0,
+                i_factor: 0.05,
+                d_factor: 3.0,
+                temp0set: 40,
+                uv_on: true
+              }
+            }
+          }
+        }
+      end
+      # rubocop:enable Metrics/BlockLength
+
+      let(:result) do
+        Timecop.freeze(Time.new(2008, 9, 1, 10, 0o1, 0, '+00:00')) do
+          subject.call
+        end
+      end
+
+      it 'return correct time setting even if not sorted' do
+        expect(result).to eq(
+          {
+            lights: {
+              on: true,
+              dim_factor: 1,
+              p_factor: 5.0,
+              i_factor: 0.05,
+              d_factor: 3.0,
+              temp0set: 40,
+              uv_on: true
+            }
+          }
+        )
+      end
+    end
+
     context 'when override is not present' do
       let(:settings) do
         {
