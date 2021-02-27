@@ -17,6 +17,8 @@ module Measurements
       arr.each do |metric|
         parsed = metric.transform_values { |val| detect_type_and_convert(val) }
         point.add_field(*parsed.first)
+             .add_tag('device_id', device_id)
+             .add_tag('user_id', user_id)
       end
       point
     end

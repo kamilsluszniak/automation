@@ -8,7 +8,7 @@ module Api
 
       def create
         filtered_measurements = device_measurements.except('checkin')
-        measurements_writer = Measurements::Writer.new(device.name)
+        measurements_writer = Measurements::Writer.new(device.name, device.id, current_user.id)
         reports_measurements = filtered_measurements.to_h.collect { |k, v| { k => v } }
         result = measurements_writer.call(reports_measurements)
         return render json: { message: 'success' }, status: :ok if result.code == '204'
