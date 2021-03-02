@@ -7,16 +7,36 @@ module Api
       before_action :authenticate_user!, unless: -> { @api_key.present? }
 
       def create
-        filtered_measurements = device_measurements.except('checkin')
-        measurements_writer = Measurements::Writer.new(device.name)
-        reports_measurements = filtered_measurements.to_h.collect { |k, v| { k => v } }
-        result = measurements_writer.call(reports_measurements)
-        return render json: { message: 'success' }, status: :ok if result.code == '204'
+        formatted_measurements = extract_formatted_measurements
+        result = write_measurements(formatted_measurements)
+
+        if result.code == '204'
+          run_triggers_checker(formatted_measurements)
+          return render json: { message: 'success' }, status: :ok
+        end
 
         render json: { message: 'error' }, status: :bad_request
       end
 
       private
+
+      def extract_formatted_measurements
+        filtered_measurements = device_measurements.except('checkin')
+        filtered_measurements.to_h.collect { |k, v| { k => v } }
+      end
+
+      def write_measurements(formatted_measurements)
+        writer.call(formatted_measurements)
+      end
+
+      def writer
+        @writer ||= Measurements::Writer.new(device.name, device.id, current_user.id)
+      end
+
+      def run_triggers_checker(reports_measurements)
+        triggers_checker = Triggers::Checker.new(reports_measurements, device.name, current_user)
+        triggers_checker.call
+      end
 
       def device_measurements
         params.require(:device).require(:measurements).permit!

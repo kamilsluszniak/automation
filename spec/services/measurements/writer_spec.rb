@@ -5,7 +5,9 @@ require 'rails_helper'
 RSpec.describe Measurements::Writer, type: :model do
   context 'when metric name is given' do
     let(:device_name) { 'test_device' }
-    subject(:writer_instance) { described_class.new(device_name) }
+    let(:device_id) { SecureRandom.uuid }
+    let(:user_id) { SecureRandom.uuid }
+    subject(:writer_instance) { described_class.new(device_name, device_id, user_id) }
     let(:influxdb_point_class) { InfluxDB2::Point }
     let(:influxdb_point_instance) { instance_double(InfluxDB2::Point) }
     # let(:influxdb_client_class) { InfluxDB2::Client }
@@ -16,6 +18,10 @@ RSpec.describe Measurements::Writer, type: :model do
                                                   .and_return(influxdb_point_instance)
       allow(influxdb_point_instance).to receive(:add_field)
         .and_return(influxdb_point_instance)
+      allow(influxdb_point_instance).to receive(:add_tag).with('device_id', device_id)
+                                                         .and_return(influxdb_point_instance)
+      allow(influxdb_point_instance).to receive(:add_tag).with('user_id', user_id)
+                                                         .and_return(influxdb_point_instance)
       # allow(influxdb_client_class).to receive(:new)
       #   .and_return(influxdb_client_instance)
       # allow(influxdb_client_instance).to receive(:create_write_api)
@@ -39,6 +45,8 @@ RSpec.describe Measurements::Writer, type: :model do
         expect(influxdb_point_class).to receive(:new).with(name: device_name)
                                                      .and_return(influxdb_point_instance)
         expect(influxdb_point_instance).to receive(:add_field).with(:temperature, 1)
+        expect(influxdb_point_instance).to receive(:add_tag).with('device_id', device_id)
+        expect(influxdb_point_instance).to receive(:add_tag).with('user_id', user_id)
         writer_instance.call(measurements)
       end
     end
@@ -59,6 +67,8 @@ RSpec.describe Measurements::Writer, type: :model do
         expect(influxdb_point_class).to receive(:new).with(name: device_name)
                                                      .and_return(influxdb_point_instance)
         expect(influxdb_point_instance).to receive(:add_field).with(:temperature_string, 1)
+        expect(influxdb_point_instance).to receive(:add_tag).with('device_id', device_id)
+        expect(influxdb_point_instance).to receive(:add_tag).with('user_id', user_id)
         writer_instance.call(measurements)
       end
     end
@@ -79,6 +89,8 @@ RSpec.describe Measurements::Writer, type: :model do
         expect(influxdb_point_class).to receive(:new).with(name: device_name)
                                                      .and_return(influxdb_point_instance)
         expect(influxdb_point_instance).to receive(:add_field).with(:temperature_float, 1.0)
+        expect(influxdb_point_instance).to receive(:add_tag).with('device_id', device_id)
+        expect(influxdb_point_instance).to receive(:add_tag).with('user_id', user_id)
         writer_instance.call(measurements)
       end
     end

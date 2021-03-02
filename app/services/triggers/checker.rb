@@ -2,14 +2,16 @@
 
 module Triggers
   class Checker
-    def initialize(metric_name, device_name)
-      @metric_name = metric_name
+    def initialize(metrics, device_name, user)
+      @metrics = metrics
       @device_name = device_name
+      @user = user
     end
 
     def call
-      triggers_to_check(metric_name).each do |trigger|
+      triggers_to_check(metric_names, user).each do |trigger|
         is_triggered = triggered?(trigger)
+
         DependenciesUpdater.new(trigger, is_triggered).call
         trigger.alerts.each do |alert|
           alert.update(active: is_triggered)
@@ -20,21 +22,26 @@ module Triggers
 
     private
 
-    attr_reader :device_name, :metric_name
+    attr_reader :device_name, :metrics, :user
 
-    def triggers_to_check(metric)
-      Trigger.where(metric: metric).includes(:alerts)
+    def metric_names
+      metrics.map { |metric| metric.keys.first }
+    end
+
+    def metric_value(metric_name)
+      metrics.find { |metric| metric.keys.first == metric_name }&.values&.first
+    end
+
+    def triggers_to_check(metrics, user)
+      user.triggers.where(metric: metrics, device: device_name, enabled: true).includes(:alerts)
     end
 
     def triggered?(trigger)
-      get_value(trigger)&.send(trigger.operator, trigger.value)
-    end
-
-    def get_value(trigger, minutes_ago: 1)
-      data_points = Measurements::Reader.new(trigger.device).call(
-        trigger.metric, minutes_ago: minutes_ago
+      trigger_value = Measurements::StringValuesParser.call(trigger.value)
+      checked_value = Measurements::StringValuesParser.call(
+        metric_value(trigger.metric)
       )
-      data_points.dig(0, 'values', 0, 'value')
+      checked_value.send(trigger.operator, trigger_value)
     end
   end
 end

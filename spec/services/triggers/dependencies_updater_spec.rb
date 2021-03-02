@@ -46,7 +46,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
       let(:dependencies) do
         {
           devices: {
-            'dependent_device': {
+            dependent_device: {
               triggered: {
                 on: true
               },
@@ -58,7 +58,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
         }
       end
 
-      let!(:device) { create(:device, name: 'dependent_device', user: user) }
+      let(:device) { create(:device, name: 'dependent_device', user: user) }
 
       it 'sets dependent device`s settings' do
         expect(device.settings).to eq(
@@ -114,7 +114,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
         }
       end
 
-      let!(:device) { create(:device, name: 'dependent_device', user: user) }
+      let(:device) { create(:device, name: 'dependent_device', user: user) }
 
       it 'sets dependent device`s settings when not triggered to override' do
         expect(device.settings).to eq(device_settings)
@@ -145,7 +145,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
         }
       end
 
-      let!(:device) { create(:device, name: 'dependent_device', user: user) }
+      let(:device) { create(:device, name: 'dependent_device', user: user) }
 
       it 'sets trigger device`s original settings' do
         expect(device.settings).to eq(device_settings)
@@ -191,7 +191,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
         }
       end
 
-      let!(:device) do
+      let(:device) do
         create(
           :device,
           name: 'dependent_device1',
