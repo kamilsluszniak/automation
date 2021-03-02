@@ -8,5 +8,6 @@ FactoryBot.define do
     operator { '<' }
     value { 10 }
     type { '' }
+    enabled { true }
   end
 end

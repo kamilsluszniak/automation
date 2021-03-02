@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_20_113954) do
+ActiveRecord::Schema.define(version: 2021_02_27_102512) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -91,6 +91,7 @@ ActiveRecord::Schema.define(version: 2021_02_20_113954) do
     t.string "metric"
     t.string "device"
     t.uuid "user_id", null: false
+    t.boolean "enabled", default: false
     t.index ["user_id"], name: "index_triggers_on_user_id"
   end
 
