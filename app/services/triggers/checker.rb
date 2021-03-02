@@ -37,8 +37,11 @@ module Triggers
     end
 
     def triggered?(trigger)
-      value = Measurements::StringValuesParser.call(trigger.value)
-      metric_value(trigger.metric)&.send(trigger.operator, value)
+      trigger_value = Measurements::StringValuesParser.call(trigger.value)
+      checked_value = Measurements::StringValuesParser.call(
+        metric_value(trigger.metric)
+      )
+      checked_value.send(trigger.operator, trigger_value)
     end
   end
 end

@@ -74,8 +74,8 @@ RSpec.describe Api::V1::MeasurementsController, type: :request do
 
       let(:device) { create(:device, name: 'dependent_device', user: user) }
 
-      context 'when measurements are incorrect' do
-        let(:metric_value) { 11 }
+      context 'when measurements are string' do
+        let(:metric_value) { '4' }
 
         it 'updates Device measurements on CREATE and triggers the trigger' do
           body = {
@@ -93,9 +93,9 @@ RSpec.describe Api::V1::MeasurementsController, type: :request do
             post '/api/v1/measurements', params: body.to_json, headers: headers
           end.to change {
             ActionMailer::Base.deliveries.count
-          }.by(0)
+          }.by(2)
 
-          expect(device.reload.settings).to eq('on' => false)
+          expect(device.reload.settings).to eq('on' => true)
 
           expect(response).to have_http_status(200)
           resp = JSON.parse(response.body)
