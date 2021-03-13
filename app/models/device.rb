@@ -6,4 +6,5 @@ class Device < ApplicationRecord
 
   serialize :settings
   belongs_to :user
+  has_many :triggers, dependent: :destroy
 end

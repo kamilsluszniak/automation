@@ -2,15 +2,14 @@
 
 module Measurements
   class MeasurementsBase
-    def initialize(device_name, device_id, user_id)
-      @device_name = device_name
+    def initialize(user_id:, device_id: nil)
       @device_id = device_id
       @user_id = user_id
     end
 
     private
 
-    attr_reader :device_name, :device_id, :user_id
+    attr_reader :device_id, :user_id
 
     def query_api
       client.create_query_api

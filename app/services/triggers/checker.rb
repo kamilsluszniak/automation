@@ -2,46 +2,83 @@
 
 module Triggers
   class Checker
-    def initialize(metrics, device_name, user)
-      @metrics = metrics
-      @device_name = device_name
+    def initialize(user)
       @user = user
     end
 
     def call
-      triggers_to_check(metric_names, user).each do |trigger|
+      query_data = triggers_to_check.map do |trigger|
+        {
+          device_id: trigger.device_id,
+          metric_name: trigger.metric
+        }
+      end
+
+      @metrics = measurements_reader.call(query_data, last_only: true)
+
+      triggers_to_check.where(ancestry: nil).each do |trigger|
         is_triggered = triggered?(trigger)
 
         DependenciesUpdater.new(trigger, is_triggered).call
-        trigger.alerts.each do |alert|
-          alert.update(active: is_triggered)
-          AlertMailer.alert_triggered_email(alert.user, alert).deliver if alert.active?
-        end
+        run_alerts(trigger, is_triggered)
       end
     end
 
     private
 
-    attr_reader :device_name, :metrics, :user
+    attr_reader :user, :metrics
 
-    def metric_names
-      metrics.map { |metric| metric.keys.first }
+    def run_alerts(trigger, is_triggered)
+      trigger.alerts.each do |alert|
+        alert.update(active: is_triggered)
+        AlertMailer.alert_triggered_email(alert.user, alert).deliver if alert.active?
+      end
     end
 
-    def metric_value(metric_name)
-      metrics.find { |metric| metric.keys.first == metric_name }&.values&.first
+    def metric_value(metric_name, device_id)
+      metrics.flatten.find do |metric|
+        metric['_field'] == metric_name && metric['device_id'] == device_id
+      end&.dig('_value')
     end
 
-    def triggers_to_check(metrics, user)
-      user.triggers.where(metric: metrics, device: device_name, enabled: true).includes(:alerts)
+    def triggers_to_check
+      @triggers_to_check ||= user.triggers.where(enabled: true).includes(:alerts, :child_triggers)
     end
 
     def triggered?(trigger)
+      children = trigger.child_triggers
+      is_combined = children.any?
+
+      if is_combined
+        triggered = children.map do |child_trigger|
+          triggered?(child_trigger)
+        end
+
+        case trigger.operator
+        when 'AND'
+          triggered.all? { |status| status == true }
+        when 'OR'
+          triggered.any? { |status| status == true }
+        end
+      else
+        check_trigger(trigger)
+      end
+    end
+
+    def check_trigger(trigger)
       trigger_value = Measurements::StringValuesParser.call(trigger.value)
+
       checked_value = Measurements::StringValuesParser.call(
-        metric_value(trigger.metric)
+        metric_value(trigger.metric, trigger.device_id)
       )
+
+      return false unless checked_value
+
       checked_value.send(trigger.operator, trigger_value)
+    end
+
+    def measurements_reader
+      @measurements_reader ||= Measurements::Reader.new(user_id: user.id)
     end
   end
 end

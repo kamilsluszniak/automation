@@ -1,6 +1,6 @@
 require: rubocop-rails
 Metrics/BlockLength:
-  ExcludedMethods: ['describe', 'context', 'define', 'it']
+  ExcludedMethods: ['describe', 'context', 'define', 'it', 'let']
   Exclude:
     - 'config/environments/*.rb'
     - 'spec/factories/*.rb'

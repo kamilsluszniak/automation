@@ -7,11 +7,10 @@ module Api
       before_action :authenticate_user!, unless: -> { @api_key.present? }
 
       def create
-        formatted_measurements = extract_formatted_measurements
-        result = write_measurements(formatted_measurements)
+        result = write_measurements(extract_formatted_measurements)
 
         if result.code == '204'
-          run_triggers_checker(formatted_measurements)
+          run_triggers_checker
           return render json: { message: 'success' }, status: :ok
         end
 
@@ -22,7 +21,12 @@ module Api
 
       def extract_formatted_measurements
         filtered_measurements = device_measurements.except('checkin')
-        filtered_measurements.to_h.collect { |k, v| { k => v } }
+        filtered_measurements.to_h.collect do |k, v|
+          {
+            name: k,
+            value: v
+          }
+        end
       end
 
       def write_measurements(formatted_measurements)
@@ -30,11 +34,11 @@ module Api
       end
 
       def writer
-        @writer ||= Measurements::Writer.new(device.name, device.id, current_user.id)
+        @writer ||= Measurements::Writer.new(device_id: device.id, user_id: current_user.id)
       end
 
-      def run_triggers_checker(reports_measurements)
-        triggers_checker = Triggers::Checker.new(reports_measurements, device.name, current_user)
+      def run_triggers_checker
+        triggers_checker = Triggers::Checker.new(current_user)
         triggers_checker.call
       end
 

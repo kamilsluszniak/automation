@@ -4,89 +4,138 @@ require 'rails_helper'
 
 RSpec.describe Triggers::Checker, type: :model do
   context 'when triggers and alerts exist' do
-    subject(:triggers_checker) { Triggers::Checker.new(metrics, device_name, user) }
+    subject(:triggers_checker) { Triggers::Checker.new(user) }
 
     let(:user) { create(:user) }
     let(:alerts) { create_list(:alert, 2, user: user) }
     let(:alerts2) { create_list(:alert, 2, user: user) }
-    let(:trigger) { create(:trigger, user: user, alerts: alerts) }
-    let(:trigger2) { create(:trigger, user: user, alerts: alerts2, metric: 'second_metric') }
-    let(:trigger_instance) { instance_double(Trigger) }
-    let(:trigger_class) { class_double('Trigger') }
+    let(:alerts3) { create_list(:alert, 2, user: user) }
+    let(:device1) { create(:device, user: user, name: 'sensor1') }
+    let(:device2) { create(:device, user: user, name: 'sensor2') }
+    let(:device3) { create(:device, user: user, name: 'sensor3') }
+    let!(:trigger) do
+      create(
+        :trigger,
+        user: user,
+        alerts: alerts,
+        metric: 'sensor1_metric',
+        value: 10,
+        enabled: true,
+        operator: parent_trigger_operator
+      )
+    end
+
+    let!(:trigger2) do
+      create(
+        :trigger,
+        user: user,
+        alerts: alerts2,
+        metric: 'sensor2_metric',
+        device: device2,
+        operator: '>',
+        value: 5,
+        parent: trigger,
+        enabled: true
+      )
+    end
+    let!(:trigger3) do
+      create(
+        :trigger,
+        user: user,
+        alerts: alerts3,
+        metric: 'sensor3_metric',
+        device: device3,
+        operator: '>',
+        value: 5,
+        parent: trigger,
+        enabled: true
+      )
+    end
+    let(:measurements_reader_class) { Measurements::Reader }
+    let(:measurements_reader_instance) { instance_double(Measurements::Reader) }
     let(:dependencies_updater_class) { Triggers::DependenciesUpdater }
     let(:dependencies_updater_instance) { instance_double(Triggers::DependenciesUpdater) }
 
-    context 'when 2 metrics in array' do
-      let(:metrics) do
+    context 'when 2 data points from 2 devices are in measurements response' do
+      let(:measurements_reader_response) do
         [
-          {
-            'my_metric' => metric_value
-          },
-          {
-            'second_metric' => second_metric_value
-          }
+          [
+            {
+              'result' => nil,
+              'table' => 0,
+              '_start' => Time.zone.now.to_s,
+              '_stop' => Time.zone.now.to_s,
+              '_time' => Time.zone.now.to_s,
+              '_value' => trigger2_metric_value,
+              '_field' => trigger2.metric,
+              '_measurement' => user.id,
+              'device_id' => device2.id
+            }
+          ],
+          [
+            {
+              'result' => nil,
+              'table' => 1,
+              '_start' => Time.zone.now.to_s,
+              '_stop' => Time.zone.now.to_s,
+              '_time' => Time.zone.now.to_s,
+              '_value' => trigger3_metric_value,
+              '_field' => trigger3.metric,
+              '_measurement' => user.id,
+              'device_id' => device3.id
+            }
+          ]
         ]
       end
 
-      context 'when device_name is correct' do
-        let(:device_name) { trigger.device }
+      let(:query_data) do
+        [
+          { device_id: nil, metric_name: trigger.metric },
+          { device_id: device2.id, metric_name: trigger2.metric },
+          { device_id: device3.id, metric_name: trigger3.metric }
+        ]
+      end
 
-        context 'when 2 triggers are triggered' do
-          let(:metric_value) { 9 }
-          let(:second_metric_value) { 9 }
+      context 'when parent trigger has AND operator' do
+        let(:parent_trigger_operator) { 'AND' }
 
-          before do
-            allow(trigger_class).to receive(:includes).with(:alerts)
-                                                      .and_return([trigger, trigger2])
-            allow(trigger_instance).to receive(:alerts).and_return(alerts)
-          end
+        context 'when 1 child trigger is triggered and 1 not' do
+          let(:trigger2_metric_value) { 6 }
+          let(:trigger3_metric_value) { 4 }
 
-          it 'runs checks, activates alerts and sends 4 emails' do
-            expect(user).to receive(:triggers).and_return(trigger_class)
-            expect(trigger_class).to receive(:where).with(metric: [trigger.metric, trigger2.metric],
-                                                          device: trigger.device, enabled: true)
-                                                    .and_return(trigger_class)
-            expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
+          it 'not triggers parent' do
+            expect(measurements_reader_class).to receive(:new).once.with(user_id: user.id)
+                                                              .and_return(measurements_reader_instance)
+            expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
+                                                                  .and_return(measurements_reader_response)
+            expect(dependencies_updater_class).to receive(:new).with(trigger, false).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_class).to receive(:new).with(trigger2, true).once
-                                                               .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_instance).to receive(:call).twice
-                                                                   .and_return(nil)
-            expect(trigger.alerts.map(&:active)).to all(be_falsey)
+            expect(dependencies_updater_instance).to receive(:call).once.and_return(nil)
 
             expect do
               triggers_checker.call
             end.to change {
               ActionMailer::Base.deliveries.count
-            }.by(4)
+            }.by(0)
 
-            expect(trigger.alerts.map(&:active)).to all(be_truthy)
-            expect(trigger2.alerts.map(&:active)).to all(be_truthy)
+            expect(trigger.alerts.reload.map(&:active)).to all(be_falsey)
+            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
+            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
           end
         end
 
-        context 'when 1 trigger is triggered' do
-          let(:metric_value) { 11 }
-          let(:second_metric_value) { 9 }
+        context 'both child triggers are triggered' do
+          let(:trigger2_metric_value) { 6 }
+          let(:trigger3_metric_value) { 6 }
 
-          before do
-            allow(trigger_class).to receive(:includes).with(:alerts)
-                                                      .and_return([trigger, trigger2])
-            allow(trigger_instance).to receive(:alerts).and_return(alerts)
-          end
-
-          it 'runs checks, not activates alerts and not sends 2 emails' do
-            expect(trigger_class).to receive(:where).with(metric: [trigger.metric, trigger2.metric],
-                                                          device: trigger.device, enabled: true)
-                                                    .and_return(trigger_class)
-            expect(user).to receive(:triggers).and_return(trigger_class)
-            expect(dependencies_updater_class).to receive(:new).with(trigger, false).once
+          it 'triggers parent' do
+            expect(measurements_reader_class).to receive(:new).once.with(user_id: user.id)
+                                                              .and_return(measurements_reader_instance)
+            expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
+                                                                  .and_return(measurements_reader_response)
+            expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_class).to receive(:new).with(trigger2, true).once
-                                                               .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_instance).to receive(:call).twice
-                                                                   .and_return(nil)
-            expect(trigger.alerts.map(&:active)).to all(be_falsey)
+            expect(dependencies_updater_instance).to receive(:call).once.and_return(nil)
 
             expect do
               triggers_checker.call
@@ -94,8 +143,87 @@ RSpec.describe Triggers::Checker, type: :model do
               ActionMailer::Base.deliveries.count
             }.by(2)
 
-            expect(trigger.alerts.map(&:active)).to all(be_falsey)
-            expect(trigger2.alerts.map(&:active)).to all(be_truthy)
+            expect(trigger.alerts.reload.map(&:active)).to all(be_truthy)
+            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
+            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
+          end
+        end
+      end
+
+      context 'when parent trigger has OR operator' do
+        let(:parent_trigger_operator) { 'OR' }
+
+        context 'when 1 child trigger is triggered and 1 not' do
+          let(:trigger2_metric_value) { 6 }
+          let(:trigger3_metric_value) { 4 }
+
+          it 'not triggers parent' do
+            expect(measurements_reader_class).to receive(:new).once.with(user_id: user.id)
+                                                              .and_return(measurements_reader_instance)
+            expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
+                                                                  .and_return(measurements_reader_response)
+            expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
+                                                               .and_return(dependencies_updater_instance)
+            expect(dependencies_updater_instance).to receive(:call).once.and_return(nil)
+
+            expect do
+              triggers_checker.call
+            end.to change {
+              ActionMailer::Base.deliveries.count
+            }.by(2)
+
+            expect(trigger.alerts.reload.map(&:active)).to all(be_truthy)
+            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
+            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
+          end
+        end
+
+        context 'both child triggers are triggered' do
+          let(:trigger2_metric_value) { 6 }
+          let(:trigger3_metric_value) { 6 }
+
+          it 'runs checks for child triggers and not triggers parent when not all triggered with AND' do
+            expect(measurements_reader_class).to receive(:new).once.with(user_id: user.id)
+                                                              .and_return(measurements_reader_instance)
+            expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
+                                                                  .and_return(measurements_reader_response)
+            expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
+                                                               .and_return(dependencies_updater_instance)
+            expect(dependencies_updater_instance).to receive(:call).once.and_return(nil)
+
+            expect do
+              triggers_checker.call
+            end.to change {
+              ActionMailer::Base.deliveries.count
+            }.by(2)
+
+            expect(trigger.alerts.reload.map(&:active)).to all(be_truthy)
+            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
+            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
+          end
+        end
+
+        context 'when measurements are empty' do
+          let(:measurements_reader_response) { [] }
+
+          it 'runs checks for child triggers and not triggers anything' do
+            expect(measurements_reader_class).to receive(:new).once.with(user_id: user.id)
+                                                              .and_return(measurements_reader_instance)
+            expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
+                                                                  .and_return(measurements_reader_response)
+            expect(dependencies_updater_class).to receive(:new).with(trigger, false).once
+                                                               .and_return(dependencies_updater_instance)
+            expect(dependencies_updater_instance).to receive(:call).once.and_return(nil)
+
+            expect do
+              triggers_checker.call
+            end.to change {
+              ActionMailer::Base.deliveries.count
+            }.by(0)
+
+            expect(trigger.alerts.reload.map(&:active)).to all(be_falsey)
+            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
+            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
           end
         end
       end

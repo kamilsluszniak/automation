@@ -7,7 +7,6 @@ RSpec.describe Devices::SettingsInterpreter, type: :model do
     subject { described_class.new(settings) }
 
     context 'when settings are not sorted' do
-      # rubocop:disable Metrics/BlockLength
       let(:settings) do
         {
           lights: {
@@ -59,8 +58,6 @@ RSpec.describe Devices::SettingsInterpreter, type: :model do
           }
         }
       end
-      # rubocop:enable Metrics/BlockLength
-
       let(:result) do
         Timecop.freeze(Time.new(2008, 9, 1, 10, 0o1, 0, '+00:00')) do
           subject.call
