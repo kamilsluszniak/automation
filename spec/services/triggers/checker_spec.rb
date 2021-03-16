@@ -8,11 +8,27 @@ RSpec.describe Triggers::Checker, type: :model do
 
     let(:user) { create(:user) }
     let(:alerts) { create_list(:alert, 2, user: user) }
+    let(:sibling_trigger_alerts) { create_list(:alert, 2, user: user) }
     let(:alerts2) { create_list(:alert, 2, user: user) }
     let(:alerts3) { create_list(:alert, 2, user: user) }
+    let(:sibling_device) { create(:device, user: user, name: 'sibling_sensor') }
     let(:device1) { create(:device, user: user, name: 'sensor1') }
     let(:device2) { create(:device, user: user, name: 'sensor2') }
     let(:device3) { create(:device, user: user, name: 'sensor3') }
+
+    let(:sibling_trigger) do
+      create(
+        :trigger,
+        user: user,
+        alerts: sibling_trigger_alerts,
+        metric: 'sibling_metric',
+        device: sibling_device,
+        value: 10,
+        enabled: true,
+        operator: '>'
+      )
+    end
+
     let!(:trigger) do
       create(
         :trigger,
@@ -56,7 +72,7 @@ RSpec.describe Triggers::Checker, type: :model do
     let(:dependencies_updater_class) { Triggers::DependenciesUpdater }
     let(:dependencies_updater_instance) { instance_double(Triggers::DependenciesUpdater) }
 
-    context 'when 2 data points from 2 devices are in measurements response' do
+    context 'when 3 data points from 3 devices are in measurements response' do
       let(:measurements_reader_response) do
         [
           [
@@ -84,6 +100,19 @@ RSpec.describe Triggers::Checker, type: :model do
               '_measurement' => user.id,
               'device_id' => device3.id
             }
+          ],
+          [
+            {
+              'result' => nil,
+              'table' => 2,
+              '_start' => Time.zone.now.to_s,
+              '_stop' => Time.zone.now.to_s,
+              '_time' => Time.zone.now.to_s,
+              '_value' => sibling_trigger_metric_value,
+              '_field' => sibling_trigger.metric,
+              '_measurement' => user.id,
+              'device_id' => sibling_device.id
+            }
           ]
         ]
       end
@@ -92,7 +121,8 @@ RSpec.describe Triggers::Checker, type: :model do
         [
           { device_id: nil, metric_name: trigger.metric },
           { device_id: device2.id, metric_name: trigger2.metric },
-          { device_id: device3.id, metric_name: trigger3.metric }
+          { device_id: device3.id, metric_name: trigger3.metric },
+          { device_id: sibling_device.id, metric_name: sibling_trigger.metric }
         ]
       end
 
@@ -102,6 +132,7 @@ RSpec.describe Triggers::Checker, type: :model do
         context 'when 1 child trigger is triggered and 1 not' do
           let(:trigger2_metric_value) { 6 }
           let(:trigger3_metric_value) { 4 }
+          let(:sibling_trigger_metric_value) { 0 }
 
           it 'not triggers parent' do
             expect(measurements_reader_class).to receive(:new).once.with(user_id: user.id)
@@ -110,7 +141,9 @@ RSpec.describe Triggers::Checker, type: :model do
                                                                   .and_return(measurements_reader_response)
             expect(dependencies_updater_class).to receive(:new).with(trigger, false).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_instance).to receive(:call).once.and_return(nil)
+            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
+                                                               .and_return(dependencies_updater_instance)
+            expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
 
             expect do
               triggers_checker.call
@@ -127,6 +160,7 @@ RSpec.describe Triggers::Checker, type: :model do
         context 'both child triggers are triggered' do
           let(:trigger2_metric_value) { 6 }
           let(:trigger3_metric_value) { 6 }
+          let(:sibling_trigger_metric_value) { 0 }
 
           it 'triggers parent' do
             expect(measurements_reader_class).to receive(:new).once.with(user_id: user.id)
@@ -135,13 +169,43 @@ RSpec.describe Triggers::Checker, type: :model do
                                                                   .and_return(measurements_reader_response)
             expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_instance).to receive(:call).once.and_return(nil)
+            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
+                                                               .and_return(dependencies_updater_instance)
+            expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
 
             expect do
               triggers_checker.call
             end.to change {
               ActionMailer::Base.deliveries.count
             }.by(2)
+
+            expect(trigger.alerts.reload.map(&:active)).to all(be_truthy)
+            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
+            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
+          end
+        end
+
+        context 'both child triggers are triggered along with sibling trigger' do
+          let(:trigger2_metric_value) { 6 }
+          let(:trigger3_metric_value) { 6 }
+          let(:sibling_trigger_metric_value) { 11 }
+
+          it 'triggers parent' do
+            expect(measurements_reader_class).to receive(:new).once.with(user_id: user.id)
+                                                              .and_return(measurements_reader_instance)
+            expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
+                                                                  .and_return(measurements_reader_response)
+            expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
+                                                               .and_return(dependencies_updater_instance)
+            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, true).once
+                                                               .and_return(dependencies_updater_instance)
+            expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
+
+            expect do
+              triggers_checker.call
+            end.to change {
+              ActionMailer::Base.deliveries.count
+            }.by(4)
 
             expect(trigger.alerts.reload.map(&:active)).to all(be_truthy)
             expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
@@ -156,6 +220,7 @@ RSpec.describe Triggers::Checker, type: :model do
         context 'when 1 child trigger is triggered and 1 not' do
           let(:trigger2_metric_value) { 6 }
           let(:trigger3_metric_value) { 4 }
+          let(:sibling_trigger_metric_value) { 0 }
 
           it 'not triggers parent' do
             expect(measurements_reader_class).to receive(:new).once.with(user_id: user.id)
@@ -164,7 +229,9 @@ RSpec.describe Triggers::Checker, type: :model do
                                                                   .and_return(measurements_reader_response)
             expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_instance).to receive(:call).once.and_return(nil)
+            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
+                                                               .and_return(dependencies_updater_instance)
+            expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
 
             expect do
               triggers_checker.call
@@ -181,6 +248,7 @@ RSpec.describe Triggers::Checker, type: :model do
         context 'both child triggers are triggered' do
           let(:trigger2_metric_value) { 6 }
           let(:trigger3_metric_value) { 6 }
+          let(:sibling_trigger_metric_value) { 0 }
 
           it 'runs checks for child triggers and not triggers parent when not all triggered with AND' do
             expect(measurements_reader_class).to receive(:new).once.with(user_id: user.id)
@@ -189,7 +257,9 @@ RSpec.describe Triggers::Checker, type: :model do
                                                                   .and_return(measurements_reader_response)
             expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_instance).to receive(:call).once.and_return(nil)
+            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
+                                                               .and_return(dependencies_updater_instance)
+            expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
 
             expect do
               triggers_checker.call
@@ -213,7 +283,9 @@ RSpec.describe Triggers::Checker, type: :model do
                                                                   .and_return(measurements_reader_response)
             expect(dependencies_updater_class).to receive(:new).with(trigger, false).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_instance).to receive(:call).once.and_return(nil)
+            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
+                                                               .and_return(dependencies_updater_instance)
+            expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
 
             expect do
               triggers_checker.call
