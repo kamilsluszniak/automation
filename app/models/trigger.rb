@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
 class Trigger < ApplicationRecord
+  has_ancestry primary_key_format: %r{\A[\w\-]+(/[\w\-]+)*\z}
   belongs_to :user
   has_many :alerts_triggers, dependent: :destroy
   has_many :alerts, through: :alerts_triggers
+  # rubocop:disable Rails/InverseOf
+  has_many :child_triggers, class_name: 'Trigger', foreign_key: 'ancestry',
+                            dependent: :nullify
+  # rubocop:enable Rails/InverseOf
+  belongs_to :device, optional: true
   serialize :dependencies, Hash
 
   def triggered?

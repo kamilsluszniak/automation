@@ -11,26 +11,6 @@ RSpec.describe Trigger, type: :model do
 
       it { should have_many :alerts }
       it { should belong_to :user }
-
-      it 'gets value' do
-        value = trigger.send(:value)
-        expect(value).to eq '10'
-      end
-
-      it 'gets operator' do
-        operator = trigger.send(:operator)
-        expect(operator).to eq '<'
-      end
-
-      it 'gets metric' do
-        metric = trigger.send(:metric)
-        expect(metric).to eq 'my_metric'
-      end
-
-      it 'gets device' do
-        device = trigger.send(:device)
-        expect(device).to eq 'my_device'
-      end
     end
   end
 end

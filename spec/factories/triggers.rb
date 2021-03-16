@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :trigger do
     name { 'basic trigger' }
-    device { 'my_device' }
+    device_name { 'my_device' }
     metric { 'my_metric' }
     operator { '<' }
     value { 10 }

@@ -1,14 +1,25 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'helpers/reports_helpers'
 
 RSpec.describe Api::V1::MeasurementsController, type: :request do
   context 'when device is created' do
     let(:user) { create(:user) }
     let(:device) { create(:device, user: user) }
     let(:alerts) { create_list(:alert, 2, user: user) }
-    let(:trigger) { create(:trigger, user: user, alerts: alerts, device: device.name, dependencies: dependencies) }
+    let(:trigger) do
+      create(
+        :trigger,
+        user: user,
+        alerts: alerts,
+        device: device,
+        dependencies: dependencies,
+        enabled: true,
+        value: 10,
+        operator: parent_trigger_operator
+      )
+    end
+    let(:parent_trigger_operator) { '<' }
 
     let(:headers) do
       {
@@ -80,7 +91,7 @@ RSpec.describe Api::V1::MeasurementsController, type: :request do
         it 'updates Device measurements on CREATE and triggers the trigger' do
           body = {
             device: {
-              name: trigger.device,
+              name: trigger.device.name,
               measurements: {
                 trigger.metric => metric_value
               }
@@ -99,7 +110,7 @@ RSpec.describe Api::V1::MeasurementsController, type: :request do
 
           expect(response).to have_http_status(200)
           resp = JSON.parse(response.body)
-          expect(resp).to have_key('message')
+          expect(resp['message']).to eq('success')
         end
       end
 
@@ -109,7 +120,7 @@ RSpec.describe Api::V1::MeasurementsController, type: :request do
         it 'updates Device measurements on CREATE and triggers the trigger' do
           body = {
             device: {
-              name: trigger.device,
+              name: trigger.device.name,
               measurements: {
                 trigger.metric => metric_value
               }
@@ -128,7 +139,7 @@ RSpec.describe Api::V1::MeasurementsController, type: :request do
 
           expect(response).to have_http_status(200)
           resp = JSON.parse(response.body)
-          expect(resp).to have_key('message')
+          expect(resp['message']).to eq('success')
         end
       end
 
@@ -138,7 +149,7 @@ RSpec.describe Api::V1::MeasurementsController, type: :request do
         it 'updates Device measurements on CREATE and triggers the trigger' do
           body = {
             device: {
-              name: trigger.device,
+              name: trigger.device.name,
               measurements: {
                 trigger.metric => metric_value
               }
@@ -157,7 +168,93 @@ RSpec.describe Api::V1::MeasurementsController, type: :request do
 
           expect(response).to have_http_status(200)
           resp = JSON.parse(response.body)
-          expect(resp).to have_key('message')
+          expect(resp['message']).to eq('success')
+        end
+      end
+
+      context 'when trigger has child triggers' do
+        let(:alerts2) { create_list(:alert, 2, user: user) }
+        let(:alerts3) { create_list(:alert, 2, user: user) }
+        let(:device2) { create(:device, user: user, name: 'sensor2') }
+        let(:device3) { create(:device, user: user, name: 'sensor3') }
+
+        let!(:trigger2) do
+          create(
+            :trigger,
+            user: user,
+            alerts: alerts2,
+            metric: 'sensor2_metric',
+            device: device2,
+            operator: '>',
+            value: 5,
+            parent: trigger,
+            enabled: true
+          )
+        end
+        let!(:trigger3) do
+          create(
+            :trigger,
+            user: user,
+            alerts: alerts3,
+            metric: 'sensor3_metric',
+            device: device3,
+            operator: '>',
+            value: 5,
+            parent: trigger,
+            enabled: true
+          )
+        end
+
+        let(:metric_value) { 11 }
+
+        context 'when trigger has `AND` operator' do
+          let(:parent_trigger_operator) { 'AND' }
+          let(:measurements) do
+            [
+              {
+                name: trigger3.metric,
+                value: 11
+              }
+            ]
+          end
+          let(:body) do
+            {
+              device: {
+                name: trigger2.device.name,
+                measurements: {
+                  trigger2.metric => metric_value
+                }
+              }
+            }
+          end
+
+          it 'not triggers parent trigger when not all childs are triggered' do
+            expect do
+              post '/api/v1/measurements', params: body.to_json, headers: headers
+            end.to change {
+              ActionMailer::Base.deliveries.count
+            }.by(0)
+
+            expect(response).to have_http_status(200)
+            resp = JSON.parse(response.body)
+            expect(resp['message']).to eq('success')
+          end
+
+          it 'triggers parent trigger when all childs are triggered' do
+            Measurements::Writer.new(
+              device_id: trigger3.device_id, user_id: user.id
+            ).call(measurements)
+
+            expect do
+              post '/api/v1/measurements', params: body.to_json, headers: headers
+            end.to change {
+              ActionMailer::Base.deliveries.count
+            }.by(2)
+
+            expect(response).to have_http_status(200)
+            resp = JSON.parse(response.body)
+            expect(resp['message']).to eq('success')
+          end
         end
       end
     end
