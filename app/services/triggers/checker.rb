@@ -20,20 +20,13 @@ module Triggers
         is_triggered = triggered?(trigger)
 
         DependenciesUpdater.new(trigger, is_triggered).call
-        run_alerts(trigger, is_triggered)
+        Alerts::Runner.new(trigger, is_triggered).call
       end
     end
 
     private
 
     attr_reader :user, :metrics
-
-    def run_alerts(trigger, is_triggered)
-      trigger.alerts.each do |alert|
-        alert.update(active: is_triggered)
-        AlertMailer.alert_triggered_email(alert.user, alert).deliver if alert.active?
-      end
-    end
 
     def metric_value(metric_name, device_id)
       metrics.flatten.find do |metric|
