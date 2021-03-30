@@ -71,6 +71,8 @@ RSpec.describe Triggers::Checker, type: :model do
     let(:measurements_reader_instance) { instance_double(Measurements::Reader) }
     let(:dependencies_updater_class) { Triggers::DependenciesUpdater }
     let(:dependencies_updater_instance) { instance_double(Triggers::DependenciesUpdater) }
+    let(:alerts_runner_class) { Alerts::Runner }
+    let(:alerts_runner_instance) { instance_double(Alerts::Runner) }
 
     context 'when 3 data points from 3 devices are in measurements response' do
       let(:measurements_reader_response) do
@@ -144,16 +146,13 @@ RSpec.describe Triggers::Checker, type: :model do
             expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
+            expect(alerts_runner_class).to receive(:new).with(trigger, false).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_class).to receive(:new).with(sibling_trigger, false).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_instance).to receive(:call).twice
 
-            expect do
-              triggers_checker.call
-            end.to change {
-              ActionMailer::Base.deliveries.count
-            }.by(0)
-
-            expect(trigger.alerts.reload.map(&:active)).to all(be_falsey)
-            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
-            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
+            triggers_checker.call
           end
         end
 
@@ -173,15 +172,13 @@ RSpec.describe Triggers::Checker, type: :model do
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
 
-            expect do
-              triggers_checker.call
-            end.to change {
-              ActionMailer::Base.deliveries.count
-            }.by(2)
+            expect(alerts_runner_class).to receive(:new).with(trigger, true).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_class).to receive(:new).with(sibling_trigger, false).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_instance).to receive(:call).twice
 
-            expect(trigger.alerts.reload.map(&:active)).to all(be_truthy)
-            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
-            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
+            triggers_checker.call
           end
         end
 
@@ -200,16 +197,13 @@ RSpec.describe Triggers::Checker, type: :model do
             expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, true).once
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
+            expect(alerts_runner_class).to receive(:new).with(trigger, true).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_class).to receive(:new).with(sibling_trigger, true).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_instance).to receive(:call).twice
 
-            expect do
-              triggers_checker.call
-            end.to change {
-              ActionMailer::Base.deliveries.count
-            }.by(4)
-
-            expect(trigger.alerts.reload.map(&:active)).to all(be_truthy)
-            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
-            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
+            triggers_checker.call
           end
         end
       end
@@ -217,7 +211,7 @@ RSpec.describe Triggers::Checker, type: :model do
       context 'when parent trigger has OR operator' do
         let(:parent_trigger_operator) { 'OR' }
 
-        context 'when 1 child trigger is triggered and 1 not' do
+        context 'when 1 child trigger is triggered and 1 not, sibling not triggered' do
           let(:trigger2_metric_value) { 6 }
           let(:trigger3_metric_value) { 4 }
           let(:sibling_trigger_metric_value) { 0 }
@@ -232,20 +226,17 @@ RSpec.describe Triggers::Checker, type: :model do
             expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
+            expect(alerts_runner_class).to receive(:new).with(trigger, true).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_class).to receive(:new).with(sibling_trigger, false).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_instance).to receive(:call).twice
 
-            expect do
-              triggers_checker.call
-            end.to change {
-              ActionMailer::Base.deliveries.count
-            }.by(2)
-
-            expect(trigger.alerts.reload.map(&:active)).to all(be_truthy)
-            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
-            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
+            triggers_checker.call
           end
         end
 
-        context 'both child triggers are triggered' do
+        context 'both child triggers are triggered, sibling not triggered' do
           let(:trigger2_metric_value) { 6 }
           let(:trigger3_metric_value) { 6 }
           let(:sibling_trigger_metric_value) { 0 }
@@ -260,16 +251,13 @@ RSpec.describe Triggers::Checker, type: :model do
             expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
+            expect(alerts_runner_class).to receive(:new).with(trigger, true).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_class).to receive(:new).with(sibling_trigger, false).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_instance).to receive(:call).twice
 
-            expect do
-              triggers_checker.call
-            end.to change {
-              ActionMailer::Base.deliveries.count
-            }.by(2)
-
-            expect(trigger.alerts.reload.map(&:active)).to all(be_truthy)
-            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
-            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
+            triggers_checker.call
           end
         end
 
@@ -286,16 +274,13 @@ RSpec.describe Triggers::Checker, type: :model do
             expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
+            expect(alerts_runner_class).to receive(:new).with(trigger, false).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_class).to receive(:new).with(sibling_trigger, false).once
+                                                        .and_return(alerts_runner_instance)
+            expect(alerts_runner_instance).to receive(:call).twice
 
-            expect do
-              triggers_checker.call
-            end.to change {
-              ActionMailer::Base.deliveries.count
-            }.by(0)
-
-            expect(trigger.alerts.reload.map(&:active)).to all(be_falsey)
-            expect(trigger2.alerts.reload.map(&:active)).to all(be_falsey)
-            expect(trigger3.alerts.reload.map(&:active)).to all(be_falsey)
+            triggers_checker.call
           end
         end
       end
