@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module Measurements
+  class EmptyMetricPairDataException < StandardError; end
+
   class MeasurementsBase
     def initialize(user_id:, device_id: nil)
       @device_id = device_id

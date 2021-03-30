@@ -46,6 +46,24 @@ RSpec.describe Measurements::Reader, type: :model do
         end
       end
 
+      context 'when data is empty' do
+        let(:result) { reader_instance.call(data) }
+        let(:data) { [] }
+
+        it 'raises EmptyMetricPairDataException' do
+          expect { result }.to raise_error Measurements::EmptyMetricPairDataException
+        end
+      end
+
+      context 'when data is nil' do
+        let(:result) { reader_instance.call(data) }
+        let(:data) { nil }
+
+        it 'raises EmptyMetricPairDataException' do
+          expect { result }.to raise_error Measurements::EmptyMetricPairDataException
+        end
+      end
+
       context 'when data is passed' do
         let(:result) { reader_instance.call(data) }
 
