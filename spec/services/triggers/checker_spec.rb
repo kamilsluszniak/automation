@@ -286,4 +286,14 @@ RSpec.describe Triggers::Checker, type: :model do
       end
     end
   end
+
+  context 'when no triggers and no alerts exist' do
+    subject(:triggers_checker) { Triggers::Checker.new(user) }
+
+    let(:user) { create(:user) }
+
+    it 'returns nil' do
+      expect(triggers_checker.call).to eq(nil)
+    end
+  end
 end

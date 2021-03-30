@@ -7,12 +7,9 @@ module Triggers
     end
 
     def call
-      query_data = triggers_to_check.map do |trigger|
-        {
-          device_id: trigger.device_id,
-          metric_name: trigger.metric
-        }
-      end
+      return unless triggers_to_check.any?
+
+      query_data = build_query_data
 
       @metrics = measurements_reader.call(query_data, last_only: true)
 
@@ -27,6 +24,15 @@ module Triggers
     private
 
     attr_reader :user, :metrics
+
+    def build_query_data
+      triggers_to_check.map do |trigger|
+        {
+          device_id: trigger.device_id,
+          metric_name: trigger.metric
+        }
+      end
+    end
 
     def metric_value(metric_name, device_id)
       metrics.flatten.find do |metric|

@@ -3,6 +3,8 @@
 module Measurements
   class Reader < Measurements::MeasurementsBase
     def call(device_metric_pair_data, minutes_ago: 60, last_only: false)
+      raise EmptyMetricPairDataException if device_metric_pair_data.blank?
+
       query = build_query(device_metric_pair_data, minutes_ago, last_only)
       result = query_api.query(query: query)
 

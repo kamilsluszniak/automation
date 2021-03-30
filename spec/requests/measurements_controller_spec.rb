@@ -85,6 +85,25 @@ RSpec.describe Api::V1::MeasurementsController, type: :request do
 
       let(:device) { create(:device, name: 'dependent_device', user: user) }
 
+      context 'when no triggers and alerts exist' do
+        let(:device) { create(:device, user: user, name: 'bulbulator') }
+
+        it 'not raises an error' do
+          body = {
+            device: {
+              name: device.name,
+              measurements: {
+                't0' => '40.25',
+                't1' => '29.00'
+              }
+            }
+          }
+
+          post '/api/v1/measurements', params: body.to_json, headers: headers
+          expect(response).to have_http_status(200)
+        end
+      end
+
       context 'when measurements are string' do
         let(:metric_value) { '4' }
 
