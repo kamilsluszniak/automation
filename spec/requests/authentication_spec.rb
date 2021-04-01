@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'POST /users/sign_in', type: :request do
+RSpec.describe '/api/v1/login', type: :request do
   let(:user) { create(:user) }
   let(:headers) { { 'Accept' => 'application/json' } }
 
