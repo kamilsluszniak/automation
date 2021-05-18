@@ -30,5 +30,31 @@ FactoryBot.define do
         water_height: 300
       }
     end
+
+    trait :dynamic_time do
+      time_zone { 'Warsaw' }
+      settings do
+        {
+          light_intensity: {
+            time_dependent: true,
+            values: {
+              600 => {
+                red: 10,
+                green: 40
+              },
+              660 => {
+                red: 20,
+                green: 50
+              },
+              720 => {
+                red: 0,
+                green: 0
+              }
+            }
+          },
+          water_height: 300
+        }
+      end
+    end
   end
 end

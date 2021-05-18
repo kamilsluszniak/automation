@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Devices::SettingsInterpreter, type: :model do
   describe '#call' do
-    subject { described_class.new(settings) }
+    subject { described_class.new(settings: settings) }
 
     context 'when settings are not sorted' do
       let(:settings) do
@@ -253,6 +253,81 @@ RSpec.describe Devices::SettingsInterpreter, type: :model do
           )
         end
       end
+    end
+  end
+
+  context 'when time zone is passed' do
+    let(:interpreter_instance) { described_class.new(settings: settings, time_zone: time_zone) }
+
+    let(:settings) do
+      {
+        light_intensity: {
+          time_dependent: true,
+          values: {
+            600 => {
+              red: 10,
+              green: 40
+            },
+            700 => {
+              red: 20,
+              green: 50
+            },
+            800 => {
+              red: 0,
+              green: 0
+            }
+          }
+        },
+        water_height: 300
+      }
+    end
+
+    subject do
+      Timecop.freeze(tested_time) do
+        interpreter_instance.call
+      end
+    end
+
+    let(:tested_time) { Time.new(2008, 9, 1, 9, 0o0, 0, '+00:00') }
+
+    context 'when UTC' do
+      let(:time_zone) { 'UTC' }
+
+      it {
+        is_expected.to eq(
+          { light_intensity: { red: 0, green: 0 }, water_height: 300 }
+        )
+      }
+    end
+
+    context 'when Warsaw' do
+      let(:time_zone) { 'Warsaw' }
+
+      it {
+        is_expected.to eq(
+          { light_intensity: { red: 10, green: 40 }, water_height: 300 }
+        )
+      }
+    end
+
+    context 'when Kuwait' do
+      let(:time_zone) { 'Kuwait' }
+
+      it {
+        is_expected.to eq(
+          { light_intensity: { red: 20, green: 50 }, water_height: 300 }
+        )
+      }
+    end
+
+    context 'when Karachi' do
+      let(:time_zone) { 'Karachi' }
+
+      it {
+        is_expected.to eq(
+          { light_intensity: { red: 0, green: 0 }, water_height: 300 }
+        )
+      }
     end
   end
 end
