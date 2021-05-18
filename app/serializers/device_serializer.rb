@@ -9,6 +9,9 @@ class DeviceSerializer
   attribute :current_settings, if: proc { |_record, params|
     params&.dig(:current_settings) == 'true'
   } do |device|
-    Devices::SettingsInterpreter.new(device.settings).call
+    Devices::SettingsInterpreter.new(
+      settings: device.settings,
+      time_zone: device.time_zone
+    ).call
   end
 end

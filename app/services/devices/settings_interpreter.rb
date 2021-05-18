@@ -2,8 +2,9 @@
 
 module Devices
   class SettingsInterpreter
-    def initialize(settings)
+    def initialize(settings:, time_zone: 'UTC')
       @settings = settings
+      @time_zone = time_zone
     end
 
     def call
@@ -34,7 +35,7 @@ module Devices
     end
 
     def get_actual_value(setting)
-      time_in_minutes = minutes_of_day(Time.zone.now)
+      time_in_minutes = minutes_of_day(Time.now.in_time_zone(time_zone))
       reverse_sorted_settings = setting.sort.reverse
       latest_setting = reverse_sorted_settings.dig(0, 1)
       reverse_sorted_settings.detect { |i| i.first <= time_in_minutes }&.last || latest_setting
@@ -44,6 +45,6 @@ module Devices
       time.hour * 60 + time.min
     end
 
-    attr_accessor :settings, :processed
+    attr_accessor :settings, :time_zone, :processed
   end
 end

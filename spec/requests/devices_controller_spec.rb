@@ -48,7 +48,7 @@ RSpec.describe Api::V1::DevicesController, type: :request do
           )
         end
 
-        it 'returns serialized settings' do
+        it 'returns serialized current settings' do
           get "/api/v1/devices/#{device.name}", params: { current_settings: true },
                                                 headers: headers
           data = JSON.parse(response.body)
@@ -62,6 +62,21 @@ RSpec.describe Api::V1::DevicesController, type: :request do
               water_height: 300
             }.deep_stringify_keys
           )
+        end
+
+        context 'when time zone is used' do
+          let(:device) { create(:device, :dynamic_time, user: user) }
+
+          it 'returns settings correct for a time zone' do
+            Timecop.freeze(Time.new(2008, 9, 1, 10, 0, 0, '+00:00')) do
+              get "/api/v1/devices/#{device.name}", params: { current_settings: true },
+                                                    headers: headers
+            end
+            resp = JSON.parse(response.body)
+            expect(resp['data']['attributes']['current_settings']).to eq(
+              { 'light_intensity' => { 'red' => 0, 'green' => 0 }, 'water_height' => 300 }
+            )
+          end
         end
       end
 
