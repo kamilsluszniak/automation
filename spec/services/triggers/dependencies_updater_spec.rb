@@ -4,7 +4,11 @@ require 'rails_helper'
 
 RSpec.describe Triggers::DependenciesUpdater, type: :model do
   context 'when triggers and alerts exist' do
-    subject(:dependencies_updater) { Triggers::DependenciesUpdater.new(trigger, is_triggered) }
+    subject(:dependencies_updater) do
+      Triggers::DependenciesUpdater.new(
+        user: user, trigger: trigger, is_triggered: is_triggered
+      )
+    end
     let(:user) { create(:user) }
     let(:alerts) { create_list(:alert, 2, user: user) }
     let(:trigger) { create(:trigger, user: user, alerts: alerts) }
@@ -41,7 +45,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
       }
     end
 
-    context 'when dependency and dependent device exist and triggered' do
+    context 'when dependency and dependent device exists and is triggered' do
       let(:is_triggered) { true }
       let(:dependencies) do
         {
@@ -97,7 +101,83 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
       end
     end
 
-    context 'when dependency and dependent device exist, not triggered with override' do
+    context 'when dependency and dependent device exists for other user and is triggered' do
+      let(:is_triggered) { true }
+      let(:dependencies) do
+        {
+          devices: {
+            dependent_device: {
+              triggered: {
+                on: true
+              },
+              not_triggered: {
+                on: false
+              }
+            }
+          }
+        }
+      end
+
+      let(:other_user) { create(:user) }
+      let(:device) { create(:device, name: 'dependent_device', user: other_user) }
+
+      it 'doesn`t change other user`s device settings' do
+        expect(device.settings).to eq(
+          {
+            light_intensity: {
+              time_dependent: true,
+              override: {
+                red: 100,
+                green: 400
+              },
+              values: {
+                600 => {
+                  red: 10,
+                  green: 40
+                },
+                700 => {
+                  red: 20,
+                  green: 50
+                },
+                800 => {
+                  red: 0,
+                  green: 0
+                }
+              }
+            },
+            water_height: 300
+          }
+        )
+
+        dependencies_updater.call
+        expect(device.reload.settings.deep_symbolize_keys).to eq({
+                                                                   light_intensity: {
+                                                                     time_dependent: true,
+                                                                     override: {
+                                                                       red: 100,
+                                                                       green: 400
+                                                                     },
+                                                                     values: {
+                                                                       600 => {
+                                                                         red: 10,
+                                                                         green: 40
+                                                                       },
+                                                                       700 => {
+                                                                         red: 20,
+                                                                         green: 50
+                                                                       },
+                                                                       800 => {
+                                                                         red: 0,
+                                                                         green: 0
+                                                                       }
+                                                                     }
+                                                                   },
+                                                                   water_height: 300
+                                                                 })
+      end
+    end
+
+    context 'when dependency and dependent device exists, is not triggered and has override' do
       let(:is_triggered) { false }
       let(:dependencies) do
         {
@@ -128,7 +208,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
       end
     end
 
-    context 'when dependency and dependent device exist, triggered with original' do
+    context 'when dependency and dependent device exists, is triggered with original' do
       let(:is_triggered) { true }
       let(:dependencies) do
         {
@@ -174,7 +254,7 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
       end
     end
 
-    context 'when dependency and dependent device exist and returning from triggered' do
+    context 'when dependency and dependent device exists and returning from triggered' do
       let(:is_triggered) { false }
       let(:dependencies) do
         {

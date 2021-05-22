@@ -16,7 +16,7 @@ module Triggers
       triggers_to_check.where(ancestry: nil).each do |trigger|
         is_triggered = triggered?(trigger)
 
-        DependenciesUpdater.new(trigger, is_triggered).call
+        DependenciesUpdater.new(user: user, trigger: trigger, is_triggered: is_triggered).call
         Alerts::Runner.new(trigger, is_triggered).call
       end
     end

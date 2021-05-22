@@ -141,9 +141,11 @@ RSpec.describe Triggers::Checker, type: :model do
                                                               .and_return(measurements_reader_instance)
             expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
                                                                   .and_return(measurements_reader_response)
-            expect(dependencies_updater_class).to receive(:new).with(trigger, false).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: trigger,
+                                                                     is_triggered: false).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: sibling_trigger,
+                                                                     is_triggered: false).once
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
             expect(alerts_runner_class).to receive(:new).with(trigger, false).once
@@ -166,9 +168,11 @@ RSpec.describe Triggers::Checker, type: :model do
                                                               .and_return(measurements_reader_instance)
             expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
                                                                   .and_return(measurements_reader_response)
-            expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: trigger,
+                                                                     is_triggered: true).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: sibling_trigger,
+                                                                     is_triggered: false).once
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
 
@@ -192,9 +196,11 @@ RSpec.describe Triggers::Checker, type: :model do
                                                               .and_return(measurements_reader_instance)
             expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
                                                                   .and_return(measurements_reader_response)
-            expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: trigger,
+                                                                     is_triggered: true).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, true).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: sibling_trigger,
+                                                                     is_triggered: true).once
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
             expect(alerts_runner_class).to receive(:new).with(trigger, true).once
@@ -221,9 +227,11 @@ RSpec.describe Triggers::Checker, type: :model do
                                                               .and_return(measurements_reader_instance)
             expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
                                                                   .and_return(measurements_reader_response)
-            expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: trigger,
+                                                                     is_triggered: true).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: sibling_trigger,
+                                                                     is_triggered: false).once
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
             expect(alerts_runner_class).to receive(:new).with(trigger, true).once
@@ -246,9 +254,11 @@ RSpec.describe Triggers::Checker, type: :model do
                                                               .and_return(measurements_reader_instance)
             expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
                                                                   .and_return(measurements_reader_response)
-            expect(dependencies_updater_class).to receive(:new).with(trigger, true).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: trigger,
+                                                                     is_triggered: true).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: sibling_trigger,
+                                                                     is_triggered: false).once
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
             expect(alerts_runner_class).to receive(:new).with(trigger, true).once
@@ -269,9 +279,11 @@ RSpec.describe Triggers::Checker, type: :model do
                                                               .and_return(measurements_reader_instance)
             expect(measurements_reader_instance).to receive(:call).once.with(query_data, last_only: true)
                                                                   .and_return(measurements_reader_response)
-            expect(dependencies_updater_class).to receive(:new).with(trigger, false).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: trigger,
+                                                                     is_triggered: false).once
                                                                .and_return(dependencies_updater_instance)
-            expect(dependencies_updater_class).to receive(:new).with(sibling_trigger, false).once
+            expect(dependencies_updater_class).to receive(:new).with(user: user, trigger: sibling_trigger,
+                                                                     is_triggered: false).once
                                                                .and_return(dependencies_updater_instance)
             expect(dependencies_updater_instance).to receive(:call).twice.and_return(nil)
             expect(alerts_runner_class).to receive(:new).with(trigger, false).once

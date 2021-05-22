@@ -2,7 +2,8 @@
 
 module Triggers
   class DependenciesUpdater
-    def initialize(trigger, is_triggered)
+    def initialize(user:, trigger:, is_triggered:)
+      @user = user
       @trigger = trigger
       @dependencies = trigger.dependencies.with_indifferent_access
       @state = is_triggered ? :triggered : :not_triggered
@@ -23,7 +24,7 @@ module Triggers
 
     private
 
-    attr_reader :trigger, :state
+    attr_reader :trigger, :state, :user
     attr_accessor :dependencies
 
     def should_keep_original(device)
@@ -37,7 +38,7 @@ module Triggers
 
     def dependent_devices
       device_names = dependencies[:devices]&.keys
-      Device.where(name: device_names)
+      user.devices.where(name: device_names)
     end
 
     def extract_original_settings(settings)
