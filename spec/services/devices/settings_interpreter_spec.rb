@@ -167,90 +167,142 @@ RSpec.describe Devices::SettingsInterpreter, type: :model do
     end
 
     context 'when override is present' do
-      let(:settings) do
-        {
-          light_intensity: {
-            time_dependent: true,
-            override: {
-              red: 100,
-              green: 400
-            },
-            values: {
-              600 => {
-                red: 10,
-                green: 40
+      context 'when override is false' do
+        let(:settings) do
+          {
+            pump1_on: false,
+            pump2_on: {
+              time_dependent: true,
+              values: {
+                600 => true,
+                900 => false
               },
-              700 => {
-                red: 20,
-                green: 50
-              },
-              800 => {
-                red: 0,
-                green: 0
+              override: false
+            }
+          }
+        end
+
+        context 'when time is less than first element' do
+          let(:result) do
+            Timecop.freeze(Time.new(2008, 9, 1, 9, 59, 0, '+00:00')) do
+              subject.call
+            end
+          end
+
+          it 'returns overriden settings' do
+            expect(result).to eq(
+              {
+                pump1_on: false,
+                pump2_on: false
               }
-            }
-          },
-          water_height: 300
-        }
-      end
-
-      context 'when time is less than first element' do
-        let(:result) do
-          Timecop.freeze(Time.new(2008, 9, 1, 9, 59, 0, '+00:00')) do
-            subject.call
+            )
           end
         end
 
-        it 'returns overriden light intensity and static setting' do
-          expect(result).to eq(
-            {
-              light_intensity: {
-                red: 100,
-                green: 400
-              },
-              water_height: 300
-            }
-          )
+        context 'when time is greater than first element' do
+          let(:result) do
+            Timecop.freeze(Time.new(2008, 9, 1, 10, 59, 0, '+00:00')) do
+              subject.call
+            end
+          end
+
+          it 'returns overriden settings' do
+            expect(result).to eq(
+              {
+                pump1_on: false,
+                pump2_on: false
+              }
+            )
+          end
         end
       end
 
-      context 'when time is bigger than first element' do
-        let(:result) do
-          Timecop.freeze(Time.new(2008, 9, 1, 10, 1, 0, '+00:00')) do
-            subject.call
-          end
-        end
-
-        it 'returns overriden light intensity and static setting' do
-          expect(result).to eq(
-            {
-              light_intensity: {
+      context 'when contains complex settings' do
+        let(:settings) do
+          {
+            light_intensity: {
+              time_dependent: true,
+              override: {
                 red: 100,
                 green: 400
               },
-              water_height: 300
-            }
-          )
+              values: {
+                600 => {
+                  red: 10,
+                  green: 40
+                },
+                700 => {
+                  red: 20,
+                  green: 50
+                },
+                800 => {
+                  red: 0,
+                  green: 0
+                }
+              }
+            },
+            water_height: 300
+          }
         end
-      end
 
-      context 'when time is bigger than second element' do
-        let(:result) do
-          Timecop.freeze(Time.new(2008, 9, 1, 11, 50, 0, '+00:00')) do
-            subject.call
+        context 'when time is less than first element' do
+          let(:result) do
+            Timecop.freeze(Time.new(2008, 9, 1, 9, 59, 0, '+00:00')) do
+              subject.call
+            end
+          end
+
+          it 'returns overriden light intensity and static setting' do
+            expect(result).to eq(
+              {
+                light_intensity: {
+                  red: 100,
+                  green: 400
+                },
+                water_height: 300
+              }
+            )
           end
         end
 
-        it 'returns overriden light intensity and static setting' do
-          expect(result).to eq(
-            {
-              light_intensity: {
-                red: 100,
-                green: 400
-              },
-              water_height: 300
-            }
-          )
+        context 'when time is bigger than first element' do
+          let(:result) do
+            Timecop.freeze(Time.new(2008, 9, 1, 10, 1, 0, '+00:00')) do
+              subject.call
+            end
+          end
+
+          it 'returns overriden light intensity and static setting' do
+            expect(result).to eq(
+              {
+                light_intensity: {
+                  red: 100,
+                  green: 400
+                },
+                water_height: 300
+              }
+            )
+          end
+        end
+
+        context 'when time is bigger than second element' do
+          let(:result) do
+            Timecop.freeze(Time.new(2008, 9, 1, 11, 50, 0, '+00:00')) do
+              subject.call
+            end
+          end
+
+          it 'returns overriden light intensity and static setting' do
+            expect(result).to eq(
+              {
+                light_intensity: {
+                  red: 100,
+                  green: 400
+                },
+                water_height: 300
+              }
+            )
+          end
         end
       end
     end

@@ -25,7 +25,7 @@ module Devices
     end
 
     def process_complex(setting)
-      if setting[:override]
+      if !setting[:override].nil?
         setting[:override]
       elsif setting[:time_dependent]
         get_actual_value(setting[:values])
