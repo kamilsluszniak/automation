@@ -150,30 +150,32 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
         )
 
         dependencies_updater.call
-        expect(device.reload.settings.deep_symbolize_keys).to eq({
-                                                                   light_intensity: {
-                                                                     time_dependent: true,
-                                                                     override: {
-                                                                       red: 100,
-                                                                       green: 400
-                                                                     },
-                                                                     values: {
-                                                                       600 => {
-                                                                         red: 10,
-                                                                         green: 40
-                                                                       },
-                                                                       700 => {
-                                                                         red: 20,
-                                                                         green: 50
-                                                                       },
-                                                                       800 => {
-                                                                         red: 0,
-                                                                         green: 0
-                                                                       }
-                                                                     }
-                                                                   },
-                                                                   water_height: 300
-                                                                 })
+        expect(device.reload.settings.deep_symbolize_keys).to eq(
+          {
+            light_intensity: {
+              time_dependent: true,
+              override: {
+                red: 100,
+                green: 400
+              },
+              values: {
+                600 => {
+                  red: 10,
+                  green: 40
+                },
+                700 => {
+                  red: 20,
+                  green: 50
+                },
+                800 => {
+                  red: 0,
+                  green: 0
+                }
+              }
+            },
+            water_height: 300
+          }
+        )
       end
     end
 
@@ -210,47 +212,132 @@ RSpec.describe Triggers::DependenciesUpdater, type: :model do
 
     context 'when dependency and dependent device exists, is triggered with original' do
       let(:is_triggered) { true }
-      let(:dependencies) do
-        {
-          devices: {
-            'dependent_device': {
-              triggered: {
-                on: true
-              },
-              not_triggered: {
-                original_settings: nil
-              }
-            }
-          }
-        }
-      end
 
-      let(:device) { create(:device, name: 'dependent_device', user: user) }
+      context 'when device has complex and grouped settings' do
+        let(:device) { create(:device, name: 'dependent_device', user: user) }
 
-      it 'sets trigger device`s original settings' do
-        expect(device.settings).to eq(device_settings)
-        updated_dependencies = dependencies.merge(
+        let(:dependencies) do
           {
             devices: {
-              device.name => {
+              'dependent_device': {
                 triggered: {
                   on: true
                 },
                 not_triggered: {
-                  original_settings: device_settings
+                  original_settings: nil
                 }
               }
             }
           }
-        )
+        end
 
-        expect(trigger).to receive(:update).with(dependencies: updated_dependencies.deep_symbolize_keys)
-        dependencies_updater.call
-        expect(device.reload.settings.deep_symbolize_keys).to eq(
+        it 'sets trigger device`s original settings' do
+          expect(device.settings).to eq(device_settings)
+          updated_dependencies = dependencies.merge(
+            {
+              devices: {
+                device.name => {
+                  triggered: {
+                    on: true
+                  },
+                  not_triggered: {
+                    original_settings: device_settings
+                  }
+                }
+              }
+            }
+          )
+
+          expect(trigger).to receive(:update).with(dependencies: updated_dependencies.deep_symbolize_keys)
+          dependencies_updater.call
+          expect(device.reload.settings.deep_symbolize_keys).to eq(
+            {
+              on: true
+            }
+          )
+        end
+      end
+
+      context 'when device has complex and not grouped settings' do
+        let(:settings) do
           {
-            on: true
+            pump1_on: false,
+            co2_on: { time_dependent: true, values: { 540 => true, 1260 => false } },
+            pump2_on: {
+              time_dependent: true,
+              values: {
+                1 => true,
+                3 => false,
+                11 => true,
+                13 => false
+              },
+              override: nil
+            }
           }
-        )
+        end
+        let(:is_triggered) { true }
+        let(:device) do
+          create(:device, :complex_not_grouped_settings, user: user, name: 'other_device')
+        end
+
+        let(:dependencies) do
+          {
+            devices: {
+              other_device: {
+                triggered: {
+                  pump2_on: false
+                },
+                not_triggered: {
+                  original_settings: nil
+                }
+              }
+            }
+          }
+        end
+
+        it 'sets trigger device`s original settings once when called twice' do
+          expect(device.settings).to eq(settings)
+
+          expect(trigger).to receive(:update).once.with(
+            dependencies: {
+              devices: {
+                other_device: {
+                  not_triggered: {
+                    original_settings: settings
+                  },
+                  triggered: {
+                    pump2_on: false
+                  }
+                }
+              }
+            }
+          ).and_call_original
+
+          dependencies_updater.call
+          dependencies_updater.call
+
+          expect(device.reload.settings.deep_symbolize_keys).to eq(
+            {
+              pump2_on: false
+            }
+          )
+
+          trigger_with_original_settings = Trigger.find(trigger.id)
+          expect(trigger_with_original_settings.dependencies).to eq(
+            {
+              devices: {
+                other_device: {
+                  triggered: {
+                    pump2_on: false
+                  },
+                  not_triggered: {
+                    original_settings: settings
+                  }
+                }
+              }
+            }
+          )
+        end
       end
     end
 

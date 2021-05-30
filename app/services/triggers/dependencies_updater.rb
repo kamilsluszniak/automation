@@ -13,7 +13,7 @@ module Triggers
       return unless dependencies
 
       dependent_devices.each do |device|
-        store_original_settings_in_not_triggered(device) if @state == :triggered && should_keep_original(device)
+        store_original_settings_in_not_triggered(device) if state == :triggered && should_keep_original(device)
         device.update(
           settings: extract_original_settings(
             dependencies[:devices][device.name][state]
@@ -31,10 +31,14 @@ module Triggers
       dependencies[:devices][device.name][:not_triggered].key? :original_settings
     end
 
+    # rubocop:disable Metrics/AbcSize
     def store_original_settings_in_not_triggered(device)
+      return if dependencies[:devices][device.name][:not_triggered][:original_settings]
+
       dependencies[:devices][device.name][:not_triggered][:original_settings] = device.settings
       trigger.update(dependencies: dependencies.deep_symbolize_keys)
     end
+    # rubocop:enable Metrics/AbcSize
 
     def dependent_devices
       device_names = dependencies[:devices]&.keys
