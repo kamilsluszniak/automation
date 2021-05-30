@@ -1,14 +1,19 @@
 require: rubocop-rails
+
+AllCops:
+  NewCops: enable
+
 Metrics/BlockLength:
-  ExcludedMethods: ['describe', 'context', 'define', 'it', 'let']
+  IgnoredMethods: ['describe', 'context', 'define', 'it', 'let']
   Exclude:
     - 'config/environments/*.rb'
     - 'spec/factories/*.rb'
 
 Metrics/MethodLength:
   Max: 20
-  ExcludedMethods: ['change']
-Metrics/LineLength:
+  IgnoredMethods: ['change']
+
+Layout/LineLength:
   Exclude:
     - 'config/initializers/devise.rb'
 Documentation:

@@ -56,5 +56,30 @@ FactoryBot.define do
         }
       end
     end
+
+    trait :complex_not_grouped_settings do
+      settings do
+        {
+          pump1_on: false,
+          co2_on: {
+            time_dependent: true,
+            values: {
+              540 => true,
+              1260 => false
+            }
+          },
+          pump2_on: {
+            time_dependent: true,
+            values: {
+              1 => true,
+              3 => false,
+              11 => true,
+              13 => false
+            },
+            override: nil
+          }
+        }
+      end
+    end
   end
 end
