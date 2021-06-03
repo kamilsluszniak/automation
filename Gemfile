@@ -20,6 +20,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'activemodel-serializers-xml'
 gem 'ancestry'
 gem 'bcrypt'
+gem 'bunny'
 gem 'devise'
 gem 'devise-jwt', '~> 0.8.0'
 gem 'fast_jsonapi'
@@ -29,6 +30,7 @@ gem 'mailgun-ruby'
 gem 'pry-stack_explorer'
 gem 'rack-cors'
 gem 'redis'
+gem 'sneakers'
 gem 'time_splitter'
 gem 'whenever', require: false
 gem 'wisper'
@@ -46,6 +48,7 @@ gem 'therubyracer'
 group :development, :test do
   gem 'pry', '~> 0.13.1'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'bullet'
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '~> 2.13'
@@ -71,7 +74,6 @@ end
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
-  gem 'bullet'
   gem 'listen', '>= 3.0.5', '< 3.2'
   gem 'web-console', '>= 3.3.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring

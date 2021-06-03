@@ -25,16 +25,16 @@ default: &default
 
 development:
   <<: *default
-  database: automation_development
-  port: 3317
+  port: <%= ENV.fetch('POSTGRES_PORT', '3317') %>
+  database: <%= ENV.fetch('POSTGRES_DB', 'automation_development') %>
+  username: <%= ENV.fetch('POSTGRES_USER', 'automation') %>
   host: <%= ENV.fetch("POSTGRES_HOST", 'localhost') %>
+  password: superpassword
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
   # When left blank, postgres will use the default role. This is
   # the same name as the operating system user that initialized the database.
-  username: automation
-  password: superpassword
 
   # Connect on a TCP socket. Omitted by default since the client uses a
   # domain socket that doesn't need configuration. Windows does not have

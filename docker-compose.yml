@@ -24,6 +24,14 @@ services:
     ports:
       - 3001:3001
     mem_reservation: 256m
+  rabbitmq:
+    image: 'rabbitmq:3'
+    networks:
+      net1:
+        aliases:
+          - rabbitmq
+    ports:
+      - "5672:5672"
   api:
     image: automation:latest
     mem_reservation: 256m
@@ -34,14 +42,17 @@ services:
     depends_on:
       - influxdb
       - influxdbcli
+      - db
     links:
       - influxdb:influxdb
       - redis:redis
       - db:db
+      - rabbitmq:rabbitmq
     volumes:
       - ./:/app
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_PORT=5432
       - POSTGRES_PASSWORD=superpassword
       - POSTGRES_USER=automation
       - INFLUX_HOST=http://influxdb:8086
