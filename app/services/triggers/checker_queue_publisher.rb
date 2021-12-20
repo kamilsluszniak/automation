@@ -8,7 +8,7 @@ module Triggers
     end
   
     def publish(options = {})
-      channel = RabbitQueueService.connection.create_channel
+      channel = RabbitQueueService.channel
       exchange = channel.exchange(
         'sneakers',
         type: :direct,

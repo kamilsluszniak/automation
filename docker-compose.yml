@@ -32,8 +32,34 @@ services:
           - rabbitmq
     ports:
       - "5672:5672"
+  worker:
+    image: worker:latest
+    networks:
+      net1:
+        aliases:
+          - rabbitmq
+    depends_on:
+      - influxdb
+      - influxdbcli
+      - rabbitmq
+      - db
+    links:
+      - influxdb:influxdb
+      - redis:redis
+      - db:db
+      - rabbitmq:rabbitmq
+    environment:
+      - BUNNY_AMQP_ADDRESSES=rabbitmq:5672
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_PORT=5432
+      - POSTGRES_PASSWORD=superpassword
+      - POSTGRES_USER=automation
+      - POSTGRES_HOST=db
+      - RAILS_ENV=development
+      - BUNDLER_WITHOUT=production
+      - WORKERS=TriggersCheckerWorker
   api:
-    image: automation:latest
+    image: easyautomateme.jfrog.io/easyautomateme-docker/api:latest
     mem_reservation: 256m
     networks:
       net1:
@@ -51,15 +77,16 @@ services:
     volumes:
       - ./:/app
     environment:
+      - BUNNY_AMQP_ADDRESSES=rabbitmq:5672
       - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_PORT=5432
       - POSTGRES_PASSWORD=superpassword
       - POSTGRES_USER=automation
+      - POSTGRES_HOST=db
       - INFLUX_HOST=http://influxdb:8086
       - INFLUX_BUCKET=mybucket
       - INFLUX_ORG=myorg
       - INFLUX_TOKEN=mytoken
-      - POSTGRES_HOST=db
       - REDIS_PASSWORD=superpassword
       - REDIS_HOST=redis
       - RAILS_ENV=development

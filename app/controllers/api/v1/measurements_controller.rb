@@ -10,7 +10,7 @@ module Api
         result = write_measurements(extract_formatted_measurements)
 
         if result.code == '204'
-          run_triggers_checker
+          Triggers::CheckerQueuePublisher.new(user_id: current_user.id).publish
           return render json: { message: 'success' }, status: :ok
         end
 

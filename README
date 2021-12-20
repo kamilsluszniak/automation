@@ -8,3 +8,12 @@ You can add files to your project:
 
 You can perform install software, use the included version control tools, or run scaffolders like `rails` (if your workspace has it installed).
 You can change the project type in `Project > Configuration`.
+
+
+docker build -f Dockerfile.worker -t worker:latest .
+docker tag worker:latest easyautomateme.jfrog.io/easyautomateme-docker/worker:latest
+docker push easyautomateme.jfrog.io/easyautomateme-docker/worker:latest
+
+docker build -f Dockerfile.api -t api:latest .
+docker tag automation:latest easyautomateme.jfrog.io/easyautomateme-docker/api:latest
+docker push easyautomateme.jfrog.io/easyautomateme-docker/api:latest
