@@ -37,11 +37,6 @@ module Api
         @writer ||= Measurements::Writer.new(device_id: device.id, user_id: current_user.id)
       end
 
-      def run_triggers_checker
-        triggers_checker = Triggers::Checker.new(current_user)
-        triggers_checker.call
-      end
-
       def device_measurements
         params.require(:device).require(:measurements).permit!
       end

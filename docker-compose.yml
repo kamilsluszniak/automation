@@ -122,7 +122,7 @@ services:
         aliases:
           - influxdbcli
   redis:
-    image: 252636471646.dkr.ecr.us-east-2.amazonaws.com/automation-redis:latest
+    image: bitnami/redis:latest
     mem_reservation: 256m
     environment:
       - REDIS_PASSWORD=superpassword
