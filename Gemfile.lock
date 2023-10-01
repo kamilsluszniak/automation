@@ -111,6 +111,7 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     airbrussh (1.4.0)
       sshkit (>= 1.6.1, != 1.7.0)
+    amq-protocol (2.3.2)
     ancestry (3.2.1)
       activerecord (>= 4.2.0)
     ast (2.4.1)
@@ -122,6 +123,9 @@ GEM
     bullet (6.1.4)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.11)
+    bunny (2.18.0)
+      amq-protocol (~> 2.3, >= 2.3.1)
+      sorted_set (~> 1, >= 1.0.2)
     byebug (11.1.1)
     capistrano (3.12.1)
       airbrussh (>= 1.0.0)
@@ -295,6 +299,7 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    rbtree (0.4.4)
     redis (4.2.5)
     ref (2.0.0)
     regexp_parser (2.0.0)
@@ -330,8 +335,21 @@ GEM
     selenium-webdriver (3.142.7)
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
+    serverengine (2.0.7)
+      sigdump (~> 0.2.2)
+    set (1.0.1)
     shoulda-matchers (4.3.0)
       activesupport (>= 4.2.0)
+    sigdump (0.2.4)
+    sneakers (2.11.0)
+      bunny (~> 2.12)
+      concurrent-ruby (~> 1.0)
+      rake
+      serverengine (~> 2.0.5)
+      thor
+    sorted_set (1.0.3)
+      rbtree
+      set (~> 1.0)
     spring (2.1.0)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
@@ -395,6 +413,7 @@ DEPENDENCIES
   ancestry
   bcrypt
   bullet
+  bunny
   byebug
   capistrano
   capistrano-bundler
@@ -433,6 +452,7 @@ DEPENDENCIES
   rubocop-rspec
   selenium-webdriver
   shoulda-matchers
+  sneakers
   spring
   spring-commands-rspec
   spring-watcher-listen (~> 2.0.0)
@@ -446,4 +466,4 @@ DEPENDENCIES
   wisper-rspec
 
 BUNDLED WITH
-   2.1.4
+   2.2.18

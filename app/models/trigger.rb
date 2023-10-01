@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Trigger < ApplicationRecord
+  self.implicit_order_column = 'created_at'
   has_ancestry primary_key_format: %r{\A[\w\-]+(/[\w\-]+)*\z}
   belongs_to :user
   has_many :alerts_triggers, dependent: :destroy
