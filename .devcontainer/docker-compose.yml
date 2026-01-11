@@ -1,12 +1,8 @@
-version: '3.8'
-
 services:
   app:
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
-    volumes:
-      - /home/kamil/Documents/dev/automation:/workspace:z
     command: sleep infinity
     environment:
       - BUNNY_AMQP_ADDRESSES=rabbitmq:5672

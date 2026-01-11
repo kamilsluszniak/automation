@@ -4,8 +4,12 @@
   "service": "app",
   "workspaceFolder": "/workspace",
   "mounts": [
-    "source=${localWorkspaceFolder},target=/workspace,type=bind,z"
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,z",
+    "source=${env:SSH_AUTH_SOCK},target=/ssh-agent,type=bind"
   ],
+  "remoteEnv": {
+    "SSH_AUTH_SOCK": "/ssh-agent"
+  },
   "remoteUser": "root",
   
   "features": {},
