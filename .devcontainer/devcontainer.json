@@ -1,0 +1,56 @@
+{
+  "name": "Automation API & Worker",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,z"
+  ],
+  "remoteUser": "root",
+  
+  "features": {},
+  
+  "forwardPorts": [3000, 3317, 5672, 6379, 8086],
+  "portsAttributes": {
+    "3000": {
+      "label": "Rails API",
+      "onAutoForward": "notify"
+    },
+    "3317": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    },
+    "5672": {
+      "label": "RabbitMQ",
+      "onAutoForward": "silent"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "silent"
+    },
+    "8086": {
+      "label": "InfluxDB",
+      "onAutoForward": "silent"
+    }
+  },
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rebornix.Ruby",
+        "Shopify.ruby-lsp",
+        "misogi.ruby-rubocop",
+        "castwide.solargraph",
+        "bradlc.vscode-tailwindcss"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.inheritEnv": true
+      }
+    }
+  },
+  
+  "postCreateCommand": "bundle install && bundle exec rake db:create db:migrate"
+  
+}
+
