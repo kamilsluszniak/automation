@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_30_102318) do
+ActiveRecord::Schema.define(version: 2026_01_11_181004) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -88,7 +88,6 @@ ActiveRecord::Schema.define(version: 2021_05_30_102318) do
     t.string "type"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "dependencies"
     t.string "value"
     t.string "operator"
     t.string "metric"
@@ -97,6 +96,7 @@ ActiveRecord::Schema.define(version: 2021_05_30_102318) do
     t.boolean "enabled", default: false
     t.string "ancestry"
     t.uuid "device_id"
+    t.jsonb "dependencies"
     t.index ["ancestry"], name: "index_triggers_on_ancestry"
     t.index ["device_id"], name: "index_triggers_on_device_id"
     t.index ["user_id"], name: "index_triggers_on_user_id"
